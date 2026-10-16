@@ -84,7 +84,7 @@ button{cursor:pointer}
 @media (orientation:landscape){#field{max-height:max(300px,calc(100dvh - 230px))}}
 /* desktop and large tablet landscape: all three panels visible */
 @media (min-width:1180px){
-  .app{grid-template-columns:250px minmax(0,1fr) 310px;grid-template-areas:"lib stage insp" "lib stage team" "lib stage share";grid-template-rows:auto auto 1fr}
+  .app{grid-template-columns:250px minmax(0,1fr) 330px;grid-template-areas:"lib stage insp" "lib stage team" "lib stage share";grid-template-rows:auto auto 1fr}
   .mtabs{display:none}
   .lib{grid-area:lib} .insp{grid-area:insp} .team{grid-area:team} .share{grid-area:share}
   .app[data-mtab] .lib{display:block}
@@ -227,6 +227,18 @@ select:focus{outline:none;border-color:var(--accent)}
 .rot td.sits{font-family:var(--f-mono);font-weight:600}
 .rot td.sits.hi{color:var(--accent)}
 .confirm .btn{margin-left:4px}
+.outwrap{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+.outm td.o span{display:inline-block;min-width:24px;padding:2px 2px;border-radius:5px;background:var(--accent-soft);color:var(--accent);font-family:var(--f-mono);font-size:9px;font-weight:600;letter-spacing:.02em}
+.outm td.o.b2b span{background:var(--accent);color:var(--accent-ink)}
+.outm td.in{color:var(--line);font-size:14px}
+.outm td.on{box-shadow:inset 0 0 0 999px rgba(176,80,28,.06)}
+.outm tfoot td{font-family:var(--f-mono);font-size:11px;font-weight:600;border-top:1px solid var(--line);border-bottom:0;background:var(--surface-2)}
+.outm tfoot td:first-child{font-family:var(--f-body);background:var(--surface-2);color:var(--muted)}
+.outm tr.never td:first-child{color:var(--muted)}
+.olegend{display:flex;gap:14px;font-size:12px;color:var(--muted)}
+.olegend span{display:inline-flex;align-items:center;gap:6px}
+.olegend i{width:14px;height:10px;border-radius:3px;display:inline-block;background:var(--accent-soft);border:1px solid var(--accent)}
+.olegend i.b2b{background:var(--accent)}
 @media (max-width:480px){.ftb .tl{display:none}.ftb{padding:0 12px}}
 @media (pointer:coarse){select,.prow input,.addrow input,.gname{font-size:16px;min-height:42px}.inn{min-width:42px;height:40px}.stepper button{width:44px;height:42px}}
 .sm{display:none}
@@ -520,6 +532,12 @@ body.present .capnote{font-size:17px}
       <div class="row">
         <button class="btn small" id="copyPrev" type="button">Copy inning before</button>
         <button class="btn small" id="copyFwd" type="button">Use for later innings</button>
+      </div>
+      <div class="outwrap">
+        <div class="subl">Who's out each inning</div>
+        <div class="rot-wrap"><table class="rot outm" id="outm"></table></div>
+        <div class="olegend"><span><i class="ok"></i>Out</span><span><i class="b2b"></i>Out back-to-back</span></div>
+        <p class="help" id="outNote"></p>
       </div>
     </div>
     <div class="sec">
@@ -1052,7 +1070,7 @@ function renderRoster(){
     const row=document.createElement('div');row.className='prow';
     const where=document.createElement('span');where.className='where';where.textContent=FPOS.find(k=>l[k]===r.id)||'';
     const inp=document.createElement('input');inp.value=r.name;inp.id='pl-'+r.id;inp.setAttribute('aria-label','Player name');inp.autocomplete='off';
-    inp.oninput=()=>{r.name=inp.value;storeTeam();applyNames();lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);renderBench();renderRot()};
+    inp.oninput=()=>{r.name=inp.value;storeTeam();applyNames();lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);renderBench();renderOut();renderRot()};
     const del=document.createElement('button');del.type='button';del.className='del';del.textContent='Remove';del.setAttribute('aria-label','Remove player');
     del.onclick=()=>{team.roster=team.roster.filter(x=>x.id!==r.id);
       team.games.forEach(g=>g.innings.forEach(li=>{for(const k in li)if(li[k]===r.id)li[k]=''}));
@@ -1061,10 +1079,39 @@ function renderRoster(){
     row.append(where,inp,del);box.appendChild(row);
   });
 }
+function renderOut(){
+  const g=game(),t=$('outm');t.innerHTML='';
+  const n=g.innings.length,outs=team.roster.map(r=>g.innings.map(l=>!FPOS.some(k=>l[k]===r.id)));
+  const thead=document.createElement('thead'),hr=document.createElement('tr');hr.innerHTML='<th>Player</th>';
+  for(let i=0;i<n;i++){const th=document.createElement('th');if(i===team.inning)th.className='on';
+    const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-label','Edit inning '+(i+1));b.onclick=()=>setInning(i);th.appendChild(b);hr.appendChild(th)}
+  const th=document.createElement('th');th.textContent='Out';hr.appendChild(th);thead.appendChild(hr);t.appendChild(thead);
+  const tb=document.createElement('tbody');let b2bPlayers=[];
+  team.roster.forEach((r,ri)=>{
+    const tr=document.createElement('tr');const o=outs[ri],total=o.filter(Boolean).length;if(!total)tr.className='never';
+    const nm=document.createElement('td');nm.textContent=r.name||'(no name)';nm.title=r.name;tr.appendChild(nm);
+    let hasB2b=false;
+    o.forEach((isOut,i)=>{const td=document.createElement('td');
+      if(isOut){const b2b=(i>0&&o[i-1])||(i<n-1&&o[i+1]);if(b2b)hasB2b=true;
+        td.className='o'+(b2b?' b2b':'');td.innerHTML='<span>OUT</span>';td.setAttribute('aria-label',(r.name||'Player')+' out inning '+(i+1))}
+      else{td.className='in';td.textContent='\u00b7';td.setAttribute('aria-label',(r.name||'Player')+' playing inning '+(i+1))}
+      if(i===team.inning)td.classList.add('on');tr.appendChild(td)});
+    if(hasB2b)b2bPlayers.push(r.name);
+    const c=document.createElement('td');c.className='sits';c.textContent=total;tr.appendChild(c);tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+  const tf=document.createElement('tfoot'),fr=document.createElement('tr');fr.innerHTML='<td>Total out</td>';
+  for(let i=0;i<n;i++){const td=document.createElement('td');td.textContent=outs.filter(o=>o[i]).length;if(i===team.inning)td.classList.add('on');fr.appendChild(td)}
+  fr.appendChild(document.createElement('td'));tf.appendChild(fr);t.appendChild(tf);
+  const never=team.roster.filter((r,ri)=>!outs[ri].some(Boolean)).length;
+  let note=b2bPlayers.length?'Out back-to-back: '+b2bPlayers.join(', ')+'.':'Nobody sits two innings in a row.';
+  if(team.roster.length>9)note+=' '+never+' of '+team.roster.length+' players never sit.';
+  $('outNote').textContent=note;
+}
 function renderTeam(){
   renderGames();renderInnings();
   lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);
-  renderBench();renderRot();renderRoster();applyNames();
+  renderBench();renderOut();renderRot();renderRoster();applyNames();
 }
 function setInning(i){team.inning=i;storeTeam();renderTeam()}
 
