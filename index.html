@@ -260,6 +260,78 @@ select:focus{outline:none;border-color:var(--accent)}
   .help.long{display:none}
 }
 
+/* ---------- section switch ---------- */
+.views{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:3px}
+.views button{border:0;background:transparent;border-radius:7px;padding:7px 14px;font-weight:600;font-size:14px;color:var(--muted);min-height:36px}
+.views button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+body.view-drills .namewrap,body.view-drills .actions{display:none!important}
+body.view-drills .top{justify-content:flex-start}
+@media (max-width:600px){.views{order:3;flex-basis:100%}.views button{flex:1}}
+
+/* ---------- drill library ---------- */
+.drills{display:grid;gap:16px;max-width:1440px;margin:0 auto;grid-template-columns:minmax(0,1fr);align-items:start}
+@media (min-width:900px){.drills{grid-template-columns:270px minmax(0,1fr)}}
+.dfilter{padding:14px;display:flex;flex-direction:column;gap:12px}
+@media (min-width:900px){.dfilter{position:sticky;top:12px;max-height:calc(100dvh - 24px);overflow-y:auto}}
+.dsearch{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:9px 12px;font-size:15px}
+.dsearch:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.dfilter summary{cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:4px 0;list-style:none;display:flex;align-items:center;justify-content:space-between}
+.dfilter summary::-webkit-details-marker{display:none}
+.dfilter summary::after{content:"+";font-size:18px;letter-spacing:0}
+.dfilter details[open] summary::after{content:"\2212"}
+.tgroup{margin-top:10px}
+.tgroup .subl{margin:0 0 6px}
+.tchips{display:flex;flex-wrap:wrap;gap:5px}
+.tag{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:500;color:var(--ink);display:inline-flex;align-items:center;gap:5px;min-height:30px}
+.tag .n{font-family:var(--f-mono);font-size:10px;color:var(--muted)}
+.tag[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.tag[aria-pressed="true"] .n{color:var(--bg);opacity:.7}
+.tag.zero{opacity:.45}
+.tag.mini{min-height:24px;padding:2px 9px;font-size:12px;background:var(--surface-2)}
+.dmain{min-width:0;display:flex;flex-direction:column;gap:14px}
+.dbar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px}
+.dbar h2{font-family:var(--f-display);font-weight:700;font-size:30px;line-height:1;margin:0;text-transform:uppercase;letter-spacing:.02em}
+.dbar .meta{font-size:13px;color:var(--muted);margin-top:4px}
+.dbar .right{display:flex;gap:8px;align-items:center}
+.dsort{min-height:38px;width:auto}
+.dactive{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted)}
+.dactive:empty{display:none}
+.dgrid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr))}
+.dcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.thumb{position:relative;aspect-ratio:16/9;max-width:100%;background:var(--grass);display:block;overflow:hidden;color:#fff;text-decoration:none}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .fb{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:repeating-linear-gradient(135deg,var(--grass) 0 26px,var(--grass-2) 26px 52px)}
+.thumb .fb svg{width:42px;height:42px}
+.thumb .src{position:absolute;left:10px;bottom:10px;background:rgba(8,18,10,.75);color:#fff;font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;letter-spacing:.02em}
+.thumb .play{position:absolute;right:10px;bottom:10px;width:36px;height:36px;border-radius:50%;background:var(--accent);display:grid;place-items:center}
+.thumb .play svg{width:16px;height:16px;fill:var(--accent-ink)}
+.dbody{padding:12px 14px 14px;display:flex;flex-direction:column;gap:8px;flex:1}
+.dtitle{font-weight:600;font-size:16px;line-height:1.3;margin:0;text-wrap:balance}
+.ddesc{font-size:14px;color:var(--muted);margin:0;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.dcard .tchips{margin-top:2px}
+.dfoot{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:6px;flex-wrap:wrap}
+.dfoot .watch{text-decoration:none}
+.dfoot .sp{flex:1}
+.dempty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:32px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.dempty h3{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;text-transform:uppercase}
+.dempty p{margin:0;color:var(--muted);max-width:46ch}
+
+/* add / edit sheet */
+.sheet{position:fixed;inset:0;z-index:30;background:rgba(10,16,12,.5);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.sheet-card{background:var(--surface);border-radius:14px;width:100%;max-width:600px;max-height:100%;overflow-y:auto;display:flex;flex-direction:column;gap:14px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sheet-head h2{font-family:var(--f-display);font-weight:700;font-size:24px;margin:0;text-transform:uppercase}
+.fld{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:600;color:var(--muted)}
+.fld input,.fld textarea{font-weight:400;color:var(--ink);border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:9px 11px;font-size:15px}
+.fld input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.fld .hint{font-weight:400;font-size:12px;align-self:flex-end;font-family:var(--f-mono)}
+.ferr{color:var(--accent);font-size:13px;margin:0}
+.ftags .tgroup{margin-top:8px}
+.sheet-foot{display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:-20px;background:var(--surface);padding:12px 0 0;margin-top:4px;border-top:1px solid var(--line)}
+@media (max-width:600px){.sheet{padding:0;align-items:stretch}.sheet-card{border-radius:0;max-width:none;height:100%;padding:16px max(16px,env(safe-area-inset-right,0px)) 16px max(16px,env(safe-area-inset-left,0px))}.sheet-foot{bottom:-16px;padding-bottom:4px}}
+@media (pointer:coarse){.dsearch,.fld input,.fld textarea{font-size:16px}.tag{min-height:36px;padding:6px 12px}}
+body.locked{overflow:hidden}
+
 /* present mode: field fills the screen for the dugout, circle visits or a projector */
 body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
 body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .team,body.present .share{display:none!important}
@@ -291,6 +363,10 @@ body.present .capnote{font-size:17px}
     <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="7" y="7" width="16" height="16" rx="2" transform="rotate(45 15 15)" fill="var(--accent)"/><rect x="12" y="12" width="6" height="6" transform="rotate(45 15 15)" fill="var(--surface)"/></svg>
     <span class="word">Fieldwise</span>
   </div>
+  <nav class="views" aria-label="Sections">
+    <button type="button" data-v="board" aria-pressed="true">Play board</button>
+    <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
+  </nav>
   <div class="namewrap">
     <input id="playName" aria-label="Play name" value="">
     <span class="dirty" id="dirty" hidden>Unsaved</span>
@@ -477,6 +553,63 @@ body.present .capnote{font-size:17px}
     </div>
   </aside>
 </main>
+<main class="drills" id="drills" hidden>
+  <aside class="panel dfilter" aria-label="Filter drills">
+    <input class="dsearch" id="dSearch" type="search" placeholder="Search drills" aria-label="Search drills" autocomplete="off">
+    <details id="dTagsBox">
+      <summary>Filter by tag <span class="count" id="dSelCount"></span></summary>
+      <div id="dTagGroups"></div>
+    </details>
+    <button class="btn small" id="dClear" type="button" hidden>Clear filters</button>
+  </aside>
+  <section class="dmain">
+    <div class="dbar">
+      <div>
+        <h2>Drill library</h2>
+        <div class="meta" id="dCount"></div>
+      </div>
+      <div class="right">
+        <select class="dsort" id="dSort" aria-label="Sort drills">
+          <option value="new">Newest first</option>
+          <option value="az">A to Z</option>
+        </select>
+        <button class="btn primary" id="dAdd" type="button">+ Add drill</button>
+      </div>
+    </div>
+    <div class="dactive" id="dActive"></div>
+    <div class="dgrid" id="dGrid"></div>
+  </section>
+</main>
+<div class="sheet" id="dSheet" hidden>
+  <form class="sheet-card" id="dForm" role="dialog" aria-modal="true" aria-labelledby="dFormTitle" novalidate>
+    <div class="sheet-head">
+      <h2 id="dFormTitle">Add a drill</h2>
+      <button type="button" class="del" id="dCloseX" aria-label="Close">Close</button>
+    </div>
+    <label class="fld">Title
+      <input id="dTitle" maxlength="120" autocomplete="off" placeholder="e.g. Short-hop barehand drill">
+    </label>
+    <label class="fld">Media link
+      <input id="dLink" type="url" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=...">
+    </label>
+    <label class="fld">Short description
+      <textarea id="dDesc" rows="3" maxlength="400" placeholder="What players do, reps, and what to coach"></textarea>
+      <span class="hint" id="dDescCount">0 / 400</span>
+    </label>
+    <div class="fld ftags">Tags <span class="count" id="dFormTagCount"></span>
+      <div id="dFormTags"></div>
+      <div class="addrow" style="margin-top:8px">
+        <input id="dNewTag" placeholder="Add your own tag" maxlength="30" autocomplete="off" aria-label="New tag">
+        <button type="button" class="btn small" id="dNewTagBtn">Add tag</button>
+      </div>
+    </div>
+    <p class="ferr" id="dErr" hidden></p>
+    <div class="sheet-foot">
+      <button type="button" class="btn" id="dCancel">Cancel</button>
+      <button type="submit" class="btn primary" id="dSave">Save drill</button>
+    </div>
+  </form>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -1028,9 +1161,195 @@ function setPresent(on){
 $('presentBtn').onclick=()=>setPresent(!presenting);
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&presenting)setPresent(false)});
 
+// ---------- drill library ----------
+const DKEY='fieldwise.drills.v1';
+const TAG_GROUPS=[
+  ['Skill',['Hitting','Batting','Bunting','Slap hitting','Throwing','Catching','Fielding','Ground balls','Fly balls','Pop-ups','Baserunning','Sliding','Stealing','Pitching']],
+  ['Position',['Infield','Outfield','Catcher','Pitcher','First base','Middle infield','Third base']],
+  ['Hitting work',['Tee work','Soft toss','Front toss','Live pitching','Pitching machine']],
+  ['Focus',['Footwork','Glove work','Arm care','Warm-up','Agility','Conditioning','Mental game','Communication','Cutoffs & relays','Game situations','Team defense']],
+  ['Setup',['Solo','Partner','Small group','Full team','Stations','Indoor','At home']],
+  ['Level',['Beginner','Intermediate','Advanced','8U','10U','12U','14U+']]
+];
+const PRESET=new Set(TAG_GROUPS.flatMap(g=>g[1]));
+let drills=(()=>{try{const v=JSON.parse(localStorage.getItem(DKEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}})();
+function storeDrills(){try{localStorage.setItem(DKEY,JSON.stringify(drills))}catch(e){}}
+const dState={q:'',tags:new Set(),sort:'new',editing:null,formTags:new Set(),extraTags:new Set(),confirm:null};
+
+function customTags(){const s=new Set();drills.forEach(d=>d.tags.forEach(t=>{if(!PRESET.has(t))s.add(t)}));dState.extraTags.forEach(t=>s.add(t));return[...s].sort((a,b)=>a.localeCompare(b))}
+function allGroups(){const c=customTags();return c.length?[...TAG_GROUPS,['My tags',c]]:TAG_GROUPS}
+function normUrl(u){u=(u||'').trim();if(!u)return'';if(!/^[a-z][a-z0-9+.-]*:/i.test(u))u='https://'+u;
+  try{const x=new URL(u);return(x.protocol==='http:'||x.protocol==='https:')&&x.hostname.includes('.')?x.href:''}catch(e){return''}}
+function mediaInfo(u){
+  let host='';try{host=new URL(u).hostname.replace(/^www\.|^m\./,'')}catch(e){}
+  let yt=null;
+  try{const x=new URL(u);
+    if(/youtu\.be$/.test(x.hostname))yt=x.pathname.slice(1).split('/')[0];
+    else if(/youtube\.com$/.test(x.hostname)){yt=x.searchParams.get('v')||(x.pathname.match(/\/(shorts|embed|live)\/([\w-]{6,})/)||[])[2]||null}
+  }catch(e){}
+  const name=/youtu/.test(host)?'YouTube':/instagram/.test(host)?'Instagram':/tiktok/.test(host)?'TikTok':/facebook|fb\.watch/.test(host)?'Facebook':/vimeo/.test(host)?'Vimeo':/twitter|x\.com/.test(host)?'X':host;
+  return{host,name,yt:yt&&/^[\w-]{6,}$/.test(yt)?yt:null};
+}
+function matches(d){
+  for(const t of dState.tags)if(!d.tags.includes(t))return false;
+  const q=dState.q.trim().toLowerCase();if(!q)return true;
+  return(d.title+' '+d.desc+' '+d.tags.join(' ')).toLowerCase().includes(q);
+}
+function tagCounts(list){const c={};list.forEach(d=>d.tags.forEach(t=>c[t]=(c[t]||0)+1));return c}
+
+function renderTagFilter(){
+  const box=$('dTagGroups');box.innerHTML='';
+  const counts=tagCounts(drills);
+  allGroups().forEach(([g,tags])=>{
+    const wrap=document.createElement('div');wrap.className='tgroup';
+    wrap.innerHTML='<div class="subl"></div>';wrap.firstChild.textContent=g;
+    const chips=document.createElement('div');chips.className='tchips';
+    tags.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tag'+(counts[t]?'':' zero');
+      b.setAttribute('aria-pressed',dState.tags.has(t));b.textContent=t;
+      const n=document.createElement('span');n.className='n';n.textContent=counts[t]||0;b.appendChild(n);
+      b.onclick=()=>{dState.tags.has(t)?dState.tags.delete(t):dState.tags.add(t);renderDrills()};chips.appendChild(b)});
+    wrap.appendChild(chips);box.appendChild(wrap);
+  });
+  $('dSelCount').textContent=dState.tags.size?dState.tags.size+' selected':'';
+  $('dClear').hidden=!(dState.tags.size||dState.q);
+}
+function renderActive(){
+  const a=$('dActive');a.innerHTML='';if(!dState.tags.size)return;
+  a.append('Showing drills tagged ');
+  [...dState.tags].forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tag';b.setAttribute('aria-pressed','true');
+    b.textContent=t+' ×';b.setAttribute('aria-label','Remove filter '+t);b.onclick=()=>{dState.tags.delete(t);renderDrills()};a.appendChild(b)});
+}
+function card(d){
+  const m=mediaInfo(d.url);
+  const c=document.createElement('article');c.className='dcard';
+  const th=document.createElement('a');th.className='thumb';th.href=d.url;th.target='_blank';th.rel='noopener noreferrer';th.setAttribute('aria-label','Open '+d.title+' on '+m.name);
+  th.innerHTML='<div class="fb"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="24" cy="24" r="19"/><path d="M20 16l12 8-12 8z" fill="currentColor"/></svg></div>';
+  if(m.yt){const img=document.createElement('img');img.alt='';img.loading='lazy';img.src='https://i.ytimg.com/vi/'+m.yt+'/hqdefault.jpg';img.onerror=()=>img.remove();th.appendChild(img)}
+  const src=document.createElement('span');src.className='src';src.textContent=m.name||'Link';th.appendChild(src);
+  th.insertAdjacentHTML('beforeend','<span class="play"><svg viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span>');
+  c.appendChild(th);
+  const body=document.createElement('div');body.className='dbody';
+  const h=document.createElement('h3');h.className='dtitle';h.textContent=d.title;body.appendChild(h);
+  if(d.desc){const p=document.createElement('p');p.className='ddesc';p.textContent=d.desc;body.appendChild(p)}
+  if(d.tags.length){const tc=document.createElement('div');tc.className='tchips';
+    d.tags.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tag mini';b.textContent=t;b.title='Show all '+t+' drills';
+      b.onclick=()=>{dState.tags.add(t);renderDrills();try{scrollTo({top:0,behavior:reduce?'auto':'smooth'})}catch(e){}};tc.appendChild(b)});
+    body.appendChild(tc)}
+  const f=document.createElement('div');f.className='dfoot';
+  const w=document.createElement('a');w.className='btn small primary watch';w.href=d.url;w.target='_blank';w.rel='noopener noreferrer';w.textContent='Open drill';
+  f.appendChild(w);
+  const sp=document.createElement('span');sp.className='sp';f.appendChild(sp);
+  if(dState.confirm===d.id){
+    f.append('Delete?');
+    const y=document.createElement('button');y.type='button';y.className='btn small';y.textContent='Delete';
+    y.onclick=()=>{drills=drills.filter(x=>x.id!==d.id);dState.confirm=null;storeDrills();renderDrills();toast('Deleted '+d.title)};
+    const n=document.createElement('button');n.type='button';n.className='btn small';n.textContent='Keep';n.onclick=()=>{dState.confirm=null;renderDrills()};
+    f.append(y,n);
+  }else{
+    const e=document.createElement('button');e.type='button';e.className='btn small';e.textContent='Edit';e.onclick=()=>openSheet(d);
+    const x=document.createElement('button');x.type='button';x.className='del';x.textContent='Delete';x.onclick=()=>{dState.confirm=d.id;renderDrills()};
+    f.append(e,x);
+  }
+  body.appendChild(f);c.appendChild(body);return c;
+}
+function renderDrills(){
+  renderTagFilter();renderActive();
+  let list=drills.filter(matches);
+  list.sort(dState.sort==='az'?(a,b)=>a.title.localeCompare(b.title):(a,b)=>(b.created||0)-(a.created||0));
+  const total=drills.length;
+  $('dCount').textContent=total?(list.length===total?total+' drill'+(total===1?'':'s'):list.length+' of '+total+' drills'):'No drills yet';
+  const g=$('dGrid');g.innerHTML='';
+  if(!total){
+    const e=document.createElement('div');e.className='dempty';e.style.gridColumn='1/-1';
+    e.innerHTML='<h3>Build your drill library</h3><p>Save drills you find online with a link, a short description and tags like Infield, Tee work or Catcher. Then filter by tag to plan practice in seconds.</p>';
+    const b=document.createElement('button');b.type='button';b.className='btn primary';b.textContent='+ Add your first drill';b.onclick=()=>openSheet(null);e.appendChild(b);
+    g.appendChild(e);return;
+  }
+  if(!list.length){
+    const e=document.createElement('div');e.className='dempty';e.style.gridColumn='1/-1';
+    e.innerHTML='<h3>No drills match</h3><p>Try removing a tag or changing your search.</p>';
+    const b=document.createElement('button');b.type='button';b.className='btn';b.textContent='Clear filters';b.onclick=clearFilters;e.appendChild(b);
+    g.appendChild(e);return;
+  }
+  list.forEach(d=>g.appendChild(card(d)));
+}
+function clearFilters(){dState.tags.clear();dState.q='';$('dSearch').value='';renderDrills()}
+
+function renderFormTags(){
+  const box=$('dFormTags');box.innerHTML='';
+  const groups=allGroups().map(([g,t])=>[g,[...t]]);
+  // include any selected custom tag not yet in a group
+  const known=new Set(groups.flatMap(x=>x[1]));const extra=[...dState.formTags].filter(t=>!known.has(t));
+  if(extra.length){const mg=groups.find(x=>x[0]==='My tags');mg?mg[1].push(...extra):groups.push(['My tags',extra])}
+  groups.forEach(([g,tags])=>{
+    const wrap=document.createElement('div');wrap.className='tgroup';
+    wrap.innerHTML='<div class="subl"></div>';wrap.firstChild.textContent=g;
+    const chips=document.createElement('div');chips.className='tchips';
+    tags.forEach(t=>{const b=document.createElement('button');b.type='button';b.className='tag';b.textContent=t;
+      b.setAttribute('aria-pressed',dState.formTags.has(t));
+      b.onclick=()=>{dState.formTags.has(t)?dState.formTags.delete(t):dState.formTags.add(t);b.setAttribute('aria-pressed',dState.formTags.has(t));updateFormCount()};
+      chips.appendChild(b)});
+    wrap.appendChild(chips);box.appendChild(wrap);
+  });
+  updateFormCount();
+}
+function updateFormCount(){$('dFormTagCount').textContent=dState.formTags.size?dState.formTags.size+' selected':''}
+function openSheet(d){
+  dState.editing=d?d.id:null;dState.formTags=new Set(d?d.tags:[]);
+  $('dFormTitle').textContent=d?'Edit drill':'Add a drill';$('dSave').textContent=d?'Save changes':'Save drill';
+  $('dTitle').value=d?d.title:'';$('dLink').value=d?d.url:'';$('dDesc').value=d?d.desc:'';$('dNewTag').value='';
+  $('dDescCount').textContent=$('dDesc').value.length+' / 400';$('dErr').hidden=true;
+  renderFormTags();$('dSheet').hidden=false;document.body.classList.add('locked');
+  setTimeout(()=>{try{$('dTitle').focus()}catch(e){}},30);
+}
+function closeSheet(){$('dSheet').hidden=true;document.body.classList.remove('locked');dState.editing=null;try{$('dAdd').focus()}catch(e){}}
+function addCustomTag(){
+  const raw=$('dNewTag').value.trim().replace(/\s+/g,' ');if(!raw)return;
+  const existing=[...PRESET,...customTags()].find(t=>t.toLowerCase()===raw.toLowerCase());
+  const t=existing||raw;dState.extraTags.add(t);dState.formTags.add(t);$('dNewTag').value='';renderFormTags();
+}
+$('dNewTagBtn').onclick=addCustomTag;
+$('dNewTag').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();addCustomTag()}});
+$('dDesc').addEventListener('input',()=>{$('dDescCount').textContent=$('dDesc').value.length+' / 400'});
+$('dForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const title=$('dTitle').value.trim(),url=normUrl($('dLink').value),desc=$('dDesc').value.trim();
+  const err=$('dErr');
+  if(!title){err.textContent='Give the drill a title.';err.hidden=false;$('dTitle').focus();return}
+  if(!url){err.textContent=$('dLink').value.trim()?'That link doesn’t look right. Paste the full web address, starting with https://':'Add a link to the drill video or page.';err.hidden=false;$('dLink').focus();return}
+  const tags=[...dState.formTags];
+  if(dState.editing){const d=drills.find(x=>x.id===dState.editing);Object.assign(d,{title,url,desc,tags,updated:Date.now()})}
+  else drills.push({id:newId('d'),title,url,desc,tags,created:Date.now(),updated:Date.now()});
+  const wasEdit=!!dState.editing;
+  storeDrills();dState.extraTags.clear();closeSheet();renderDrills();toast(wasEdit?'Drill updated':'Added '+title);
+});
+$('dCancel').onclick=closeSheet;$('dCloseX').onclick=closeSheet;
+$('dSheet').addEventListener('click',e=>{if(e.target===$('dSheet'))closeSheet()});
+$('dAdd').onclick=()=>openSheet(null);
+$('dClear').onclick=clearFilters;
+$('dSearch').addEventListener('input',e=>{dState.q=e.target.value;renderDrills()});
+$('dSort').onchange=e=>{dState.sort=e.target.value;renderDrills()};
+
+// section switch
+let view='board';
+function setView(v){
+  view=v;const d=v==='drills';
+  if(d){stop();if(presenting)setPresent(false)}
+  document.body.classList.toggle('view-drills',d);
+  $('app').hidden=d;$('drills').hidden=!d;
+  document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+  try{history.replaceState(null,'',d?'#drills':location.pathname+location.search)}catch(e){}
+  if(d)renderDrills();else requestAnimationFrame(sizePieces);
+  try{scrollTo(0,0)}catch(e){}
+}
+document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+if(matchMedia('(min-width:900px)').matches)$('dTagsBox').open=true;
+
 // keyboard
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('dSheet').hidden){closeSheet();return}
   if(e.key==='Escape'&&presenting){setPresent(false);return}
+  if(view==='drills')return;
   if(e.target.closest('input,textarea'))return;
   if(e.key===' '){e.preventDefault();togglePlay()}
   else if(e.key==='ArrowRight'){stop();showFrame(cur+1)}
@@ -1040,6 +1359,7 @@ document.addEventListener('keydown',e=>{
 loadPlay(LIB[1]);
 renderTeam();applyNames();
 sizePieces();
+if(location.hash==='#drills')setView('drills');
 })();
 </script>
 
