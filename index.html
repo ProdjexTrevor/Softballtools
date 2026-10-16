@@ -90,7 +90,19 @@ button{cursor:pointer}
   .app[data-mtab] .lib{display:block}
   .app[data-mtab] .insp,.app[data-mtab] .team,.app[data-mtab] .share{display:flex}
 }
-.newbtn{width:100%;justify-content:center;margin-bottom:12px}
+.newbtn{width:100%;justify-content:center;margin-bottom:8px}
+.practicebtn{width:100%;justify-content:center;margin-bottom:12px;border-color:var(--grass);color:var(--grass)}
+.practicebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.ptitle{font-family:var(--f-display);font-weight:600;font-size:22px;padding:6px 10px;display:none;align-items:center;gap:8px}
+.ptitle i{width:10px;height:10px;border-radius:50%;background:var(--grass);display:inline-block}
+/* practice mode: free-move board, no play structure, no left panel */
+body.practice .lib,body.practice .caption,body.practice .transport,body.practice .mtabs [data-m="plays"],
+body.practice .step-sec,body.practice #playName,body.practice #dirty,body.practice #saveBtn{display:none!important}
+body.practice .ptitle{display:inline-flex}
+body:not(.practice) .practice-sec,body:not(.practice) #exitPracticeTool{display:none!important}
+@media (min-width:1180px){
+  body.practice .app{grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"stage insp" "stage team" "stage share"}
+}
 
 .label{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:8px;padding:3px;margin-bottom:12px}
@@ -250,7 +262,7 @@ select:focus{outline:none;border-color:var(--accent)}
 
 /* present mode: field fills the screen for the dugout, circle visits or a projector */
 body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
-body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .share{display:none!important}
+body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .team,body.present .share{display:none!important}
 body.present .app{display:block;max-width:none}
 body.present .field-card{border:0;border-radius:0;margin:0;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
 body.present .field-wrap{flex:1;min-height:0;display:flex}
@@ -282,6 +294,7 @@ body.present .capnote{font-size:17px}
   <div class="namewrap">
     <input id="playName" aria-label="Play name" value="">
     <span class="dirty" id="dirty" hidden>Unsaved</span>
+    <span class="ptitle"><i></i>Practice mode</span>
   </div>
   <div class="actions">
     <button class="btn primary" id="saveBtn" type="button"><span class="lg">Save to My plays</span><span class="sm">Save</span></button>
@@ -297,6 +310,7 @@ body.present .capnote{font-size:17px}
   </nav>
   <aside class="panel lib" aria-label="Play library">
     <button class="btn newbtn" id="newBtn" type="button">+ New play</button>
+    <button class="btn practicebtn" id="practiceBtn" type="button"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>Practice mode</button>
     <div class="tabs" role="tablist">
       <button role="tab" id="tabLib" aria-selected="true" type="button">Situations</button>
       <button role="tab" id="tabMine" aria-selected="false" type="button">My plays</button>
@@ -308,6 +322,7 @@ body.present .capnote{font-size:17px}
     <div class="field-card">
       <div class="field-wrap">
         <div class="fieldtools">
+          <button class="ftb" id="exitPracticeTool" type="button"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>Exit practice</span></button>
           <button class="ftb" id="namesBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span id="namesLbl">Names</span></button>
           <button class="ftb" id="innBtn" type="button" hidden aria-label="Next inning"><span id="innBtnLbl">Inn 1</span></button>
           <button class="ftb" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8 11h6M11 8v6"/></svg><span class="tl" id="zoomLbl">Infield</span></button>
@@ -370,7 +385,15 @@ body.present .capnote{font-size:17px}
   </section>
 
   <aside class="panel insp" aria-label="Step editor">
-    <div class="sec">
+    <div class="sec practice-sec">
+      <span class="label">Practice mode</span>
+      <p class="help">Move any player, runner or the ball anywhere on the field. Nothing here changes your plays.</p>
+      <div class="row">
+        <button class="btn small" id="practiceReset" type="button">Reset positions</button>
+        <button class="btn small primary" id="exitPractice" type="button">Exit practice mode</button>
+      </div>
+    </div>
+    <div class="sec step-sec">
       <span class="label" id="editLabel">Step 1 coaching note</span>
       <textarea id="note" rows="4" placeholder="What should each player do on this step?"></textarea>
       <div class="row">
@@ -516,6 +539,7 @@ const KEY='fieldwise.plays.v1';
 function loadMine(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
 function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}
 
+let practicing=false;
 let mine=loadMine(), play=null, cur=0, playing=false, speed=1, tab='lib', dirty=false, raf=0, timer=0, confirmId=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -655,7 +679,7 @@ function renderChips(){
     const on=play.show.includes(id);b.setAttribute('aria-pressed',on);
     b.innerHTML='<span class="sw" style="background:'+col+'"></span>'+label;
     b.onclick=()=>{stop();if(play.show.includes(id))play.show=play.show.filter(x=>x!==id);else play.show.push(id);
-      applyVisibility();renderChips();showFrame(cur);setDirty(true)};
+      applyVisibility();renderChips();showFrame(cur);if(practicing)storePractice();else setDirty(true)};
     c.appendChild(b);
   });
 }
@@ -719,9 +743,9 @@ gP.addEventListener('pointermove',ev=>{
   if(!drag)return;const p=svgPoint(ev);
   const x=Math.max(VB.x+14,Math.min(VB.x+VB.w-14,p.x+drag.dx)),y=Math.max(VB.y+14,Math.min(VB.y+VB.h-14,p.y+drag.dy));
   play.frames[cur].pos[drag.id]=[Math.round(x),Math.round(y)];setPos(drag.id,[x,y]);
-  renderTrails(cur>0?play.frames[cur-1].pos:null,play.frames[cur].pos);setDirty(true);
+  renderTrails(cur>0?play.frames[cur-1].pos:null,play.frames[cur].pos);if(!practicing)setDirty(true);
 });
-const endDrag=()=>{if(!drag)return;drag.g.classList.remove('drag');drag=null};
+const endDrag=()=>{if(!drag)return;drag.g.classList.remove('drag');drag=null;if(practicing)storePractice();else setDirty(true)};
 gP.addEventListener('pointerup',endDrag);gP.addEventListener('pointercancel',endDrag);
 
 // controls
@@ -938,6 +962,39 @@ $('addForm').addEventListener('submit',e=>{
 $('lblPos').onclick=()=>setShowNames(false);
 $('lblNames').onclick=()=>setShowNames(true);
 $('namesBtn').onclick=()=>setShowNames(!team.showNames);
+
+// ---------- practice mode ----------
+const PKEY='fieldwise.practice.v1';
+let saved=null;
+function practiceBoard(){
+  try{const v=JSON.parse(localStorage.getItem(PKEY)||'null');
+    if(v&&v.pos){const pos=clone(DEF);for(const k in v.pos)if(DEF[k]&&Array.isArray(v.pos[k]))pos[k]=v.pos[k];
+      return{name:'Practice',show:Array.isArray(v.show)?v.show:['B','ball'],frames:[{pos,note:''}]}}}catch(e){}
+  return{name:'Practice',show:['B','ball'],frames:[{pos:clone(DEF),note:''}]};
+}
+function storePractice(){try{localStorage.setItem(PKEY,JSON.stringify({pos:play.frames[0].pos,show:play.show}))}catch(e){}}
+function setTabLabels(){const t=document.querySelector('.mtabs [data-m="edit"]');if(t)t.textContent=practicing?'Practice':'Step'}
+function enterPractice(){
+  if(practicing)return;stop();
+  saved={play,cur,dirty};
+  practicing=true;document.body.classList.add('practice');
+  play=practiceBoard();applyVisibility();renderChips();showFrame(0);
+  $('app').dataset.mtab='edit';document.querySelectorAll('.mtabs button').forEach(x=>x.setAttribute('aria-selected',x.dataset.m==='edit'));
+  setTabLabels();
+  if(matchMedia('(max-width:1179px)').matches){try{$('stage').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}catch(e){}}
+  requestAnimationFrame(sizePieces);
+  toast('Practice mode. Drag anyone anywhere.');
+}
+function exitPractice(){
+  if(!practicing)return;storePractice();
+  practicing=false;document.body.classList.remove('practice');
+  play=saved.play;applyVisibility();renderChips();showFrame(saved.cur);setDirty(saved.dirty);renderLibrary();
+  setTabLabels();requestAnimationFrame(sizePieces);
+}
+$('practiceBtn').onclick=enterPractice;
+$('exitPractice').onclick=exitPractice;
+$('exitPracticeTool').onclick=exitPractice;
+$('practiceReset').onclick=()=>{play.frames[0].pos=clone(DEF);showFrame(0);storePractice();toast('Everyone is back in their starting spots')};
 
 // panel tabs (phone + tablet)
 document.querySelectorAll('.mtabs button').forEach(b=>b.onclick=()=>{
