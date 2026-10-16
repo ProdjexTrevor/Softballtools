@@ -1,0 +1,990 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3E8E4A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Softball coaching board: drag players, build animated plays, set inning-by-inning lineups.">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Fieldwise Play Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: three-column coaching board (library | field | steps) that stacks field-first on phones */
+:root{
+  --bg:#ECF0EB; --surface:#FFFFFF; --surface-2:#F5F7F4; --ink:#17211B; --muted:#5B685F; --line:#D3DAD4;
+  --accent:#B0501C; --accent-ink:#FFFFFF; --accent-soft:#F6E4D8;
+  --grass:#3E8E4A; --grass-2:#378243; --grass-foul:#357A40; --clay:#C98A5A; --clay-2:#B87A4B; --chalk:#FFFFFF; --fence:#1F4E2A;
+  --fielder:#1E3A7B; --fielder-ink:#FFFFFF; --runner:#F2B91E; --runner-ink:#2A1E00; --ball:#FFFFFF; --stitch:#C8302B;
+  --trail-f:rgba(30,58,123,.85); --trail-r:#F2B91E; --trail-b:#FFFFFF;
+  --f-display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101612; --surface:#18201B; --surface-2:#1E2822; --ink:#E5ECE6; --muted:#93A198; --line:#2B3830;
+  --accent:#E4834E; --accent-ink:#1A0E06; --accent-soft:#3A2418;
+  --grass:#2F6E3A; --grass-2:#2A6434; --grass-foul:#275C30; --clay:#A8724A; --clay-2:#98663F; --chalk:#ECF0EC; --fence:#14321B;
+  --fielder:#2F55B0; --trail-f:rgba(140,170,240,.9);
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#101612; --surface:#18201B; --surface-2:#1E2822; --ink:#E5ECE6; --muted:#93A198; --line:#2B3830;
+  --accent:#E4834E; --accent-ink:#1A0E06; --accent-soft:#3A2418;
+  --grass:#2F6E3A; --grass-2:#2A6434; --grass-foul:#275C30; --clay:#A8724A; --clay-2:#98663F; --chalk:#ECF0EC; --fence:#14321B;
+  --fielder:#2F55B0; --trail-f:rgba(140,170,240,.9);
+  color-scheme:dark }
+
+html,body{background:var(--bg);color:var(--ink)}
+body{font-family:var(--f-body);font-size:15px;line-height:1.5;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:14px 32px}
+*{box-sizing:border-box}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;max-width:1440px;margin:0 auto 14px}
+.mark{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:26px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.mark svg{width:30px;height:30px;flex:none}
+.namewrap{flex:1 1 260px;display:flex;align-items:center;gap:8px;min-width:0}
+#playName{flex:1;min-width:0;border:1px solid transparent;background:transparent;border-radius:8px;padding:6px 10px;font-family:var(--f-display);font-weight:600;font-size:22px;letter-spacing:.01em}
+#playName:hover{border-color:var(--line)}
+#playName:focus{border-color:var(--accent);background:var(--surface);outline:none}
+.dirty{font-size:12px;color:var(--muted);white-space:nowrap}
+.actions{display:flex;gap:8px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* phone + tablet portrait: field, then a tab bar that switches one panel below it */
+.app{display:grid;gap:14px;max-width:1440px;margin:0 auto;grid-template-columns:minmax(0,1fr);grid-template-areas:"stage" "mtabs" "panel";align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.stage{grid-area:stage;min-width:0}
+.lib{grid-area:panel;padding:14px}
+.insp,.share{grid-area:panel;padding:16px;display:flex;flex-direction:column;gap:18px}
+.mtabs{grid-area:mtabs;display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:4px}
+.mtabs button{flex:1;border:0;background:transparent;border-radius:7px;min-height:44px;font-weight:600;font-size:15px;color:var(--muted)}
+.mtabs button[aria-selected="true"]{background:var(--ink);color:var(--bg)}
+.team{grid-area:panel;padding:16px;display:flex;flex-direction:column;gap:18px}
+.app:not([data-mtab="edit"]) .insp,.app:not([data-mtab="plays"]) .lib,
+.app:not([data-mtab="team"]) .team,.app:not([data-mtab="share"]) .share{display:none}
+/* tablet / phone landscape: field left, tabbed panel right */
+@media (min-width:880px) and (orientation:landscape){
+  .app{grid-template-columns:minmax(0,1fr) 320px;grid-template-areas:"stage mtabs" "stage panel";grid-template-rows:auto 1fr}
+}
+@media (orientation:landscape){#field{max-height:max(300px,calc(100dvh - 230px))}}
+/* desktop and large tablet landscape: all three panels visible */
+@media (min-width:1180px){
+  .app{grid-template-columns:250px minmax(0,1fr) 310px;grid-template-areas:"lib stage insp" "lib stage team" "lib stage share";grid-template-rows:auto auto 1fr}
+  .mtabs{display:none}
+  .lib{grid-area:lib} .insp{grid-area:insp} .team{grid-area:team} .share{grid-area:share}
+  .app[data-mtab] .lib{display:block}
+  .app[data-mtab] .insp,.app[data-mtab] .team,.app[data-mtab] .share{display:flex}
+}
+.newbtn{width:100%;justify-content:center;margin-bottom:12px}
+
+.label{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.tabs{display:flex;gap:4px;background:var(--surface-2);border-radius:8px;padding:3px;margin-bottom:12px}
+.tabs button{flex:1;border:0;background:transparent;border-radius:6px;padding:6px;font-weight:600;font-size:13px;color:var(--muted)}
+.tabs button[aria-pressed="true"],.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.group{margin-bottom:12px}
+.group .label{margin:6px 4px}
+.item{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:transparent;border-radius:7px;padding:7px 8px}
+.item:hover{background:var(--surface-2)}
+.item[aria-current="true"]{background:var(--accent-soft)}
+.item .nm{flex:1;min-width:0;font-weight:500;font-size:14px;line-height:1.3}
+.item .ct{font-family:var(--f-mono);font-size:11px;color:var(--muted)}
+.rowitem{display:flex;align-items:center;gap:4px}
+.rowitem .item{flex:1;min-width:0}
+.del{border:0;background:transparent;color:var(--muted);font-size:12px;padding:4px 6px;border-radius:6px}
+.del:hover{color:var(--accent);background:var(--surface-2)}
+.confirm{display:flex;gap:4px;align-items:center;font-size:12px;color:var(--muted)}
+.empty{color:var(--muted);font-size:14px;padding:6px 4px}
+
+.field-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.field-wrap{position:relative;background:var(--grass-foul)}
+#field{display:block;width:100%;height:auto;max-height:78dvh;touch-action:pan-y pinch-zoom;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.fieldtools{position:absolute;top:10px;right:10px;display:flex;gap:6px;z-index:2}
+.ftb{border:0;border-radius:999px;min-height:38px;padding:0 14px;background:rgba(12,24,15,.62);color:#fff;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.ftb svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.ftb:hover{background:rgba(12,24,15,.8)}
+.ftb[aria-pressed="true"]{background:var(--runner);color:var(--runner-ink)}
+button{touch-action:manipulation}
+.caption{display:flex;gap:14px;align-items:baseline;padding:12px 16px;border-top:1px solid var(--line);min-height:62px}
+.stepno{font-family:var(--f-mono);font-size:12px;color:var(--accent);white-space:nowrap;padding-top:2px}
+.capnote{font-size:15px;line-height:1.45;max-width:70ch}
+.capnote.muted{color:var(--muted)}
+.transport{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line);background:var(--surface-2)}
+.tbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.tbtn svg{width:18px;height:18px;fill:currentColor}
+.tbtn.play{width:48px;height:48px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tbtn:disabled{opacity:.4;cursor:not-allowed}
+.dots{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0;justify-content:center}
+.dot{min-width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-size:12px}
+.dot[aria-current="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.speed{display:flex;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:2px}
+.speed button{border:0;background:transparent;border-radius:6px;padding:5px 8px;font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.speed button[aria-pressed="true"]{background:var(--surface-2);color:var(--ink)}
+
+.sec{display:flex;flex-direction:column;gap:8px}
+textarea{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:9px 10px;resize:vertical;font-size:14px;line-height:1.45}
+textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 7px;font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:6px}
+.chip .sw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+.chip[aria-pressed="false"]{color:var(--muted)}
+.chip[aria-pressed="false"] .sw{opacity:.3}
+.chip[aria-pressed="true"]{border-color:var(--ink)}
+.help{font-size:13px;color:var(--muted);line-height:1.5}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:12px;border-radius:50%;display:inline-block}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:14px;font-weight:500;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* field paint */
+.f-foul{fill:var(--grass-foul)} .f-s1{fill:var(--grass)} .f-s2{fill:var(--grass-2)}
+.f-clay{fill:var(--clay)} .f-grass{fill:var(--grass)} .f-track{fill:none;stroke:var(--clay-2);stroke-width:28}
+.f-fence{fill:none;stroke:var(--fence);stroke-width:7}
+.f-line{stroke:var(--chalk);stroke-width:3;fill:none}
+.f-base{fill:var(--chalk)} .f-safe{fill:#F07A1A}
+.f-dist{fill:var(--chalk);font-family:var(--f-display);font-weight:700;font-size:22px;opacity:.75;text-anchor:middle}
+.pc{cursor:grab;touch-action:none}
+.pc:active{cursor:grabbing}
+.pc-f .body{fill:var(--fielder);stroke:var(--chalk);stroke-width:2.5}
+.pc-f text{fill:var(--fielder-ink)}
+.pc-r .body{fill:var(--runner);stroke:#5A4300;stroke-width:2}
+.pc-r text{fill:var(--runner-ink)}
+.pc text{font-family:var(--f-display);font-weight:700;font-size:17px;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.pc text.nm{font-family:var(--f-body);font-weight:700;font-size:13px;fill:#fff;stroke:rgba(8,18,10,.88);stroke-linejoin:round;paint-order:stroke;dominant-baseline:hanging}
+.pc-b .bl{fill:var(--ball);stroke:#7a7a7a;stroke-width:1}
+.pc-b .st{fill:none;stroke:var(--stitch);stroke-width:1.6}
+.pc .hit{fill:transparent;stroke:none}
+.pc.drag circle:not(.hit){filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.tr{fill:none;stroke-width:3.5;stroke-dasharray:9 7;stroke-linecap:round}
+.tr-f{stroke:var(--trail-f)} .tr-r{stroke:var(--trail-r)} .tr-b{stroke:var(--trail-b);stroke-dasharray:3 6;stroke-width:3}
+.mk-f{fill:var(--trail-f)} .mk-r{fill:var(--trail-r)} .mk-b{fill:var(--trail-b)}
+/* team panel */
+.lineup{display:grid;grid-template-columns:40px minmax(0,1fr);gap:8px 10px;align-items:center}
+.posb{height:30px;border-radius:999px;background:var(--fielder);color:var(--fielder-ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:14px}
+.posb.r{background:var(--runner);color:var(--runner-ink)}
+select{width:100%;min-height:38px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:6px 8px;font:inherit;font-size:15px;color:var(--ink)}
+select:focus{outline:none;border-color:var(--accent)}
+.roster{display:flex;flex-direction:column;gap:6px}
+.prow{display:flex;gap:6px;align-items:center}
+.prow input,.addrow input{flex:1;min-width:0;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:7px 10px;font-size:15px}
+.prow input:focus,.addrow input:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.prow .where{font-family:var(--f-mono);font-size:11px;color:var(--muted);min-width:24px;text-align:right}
+.addrow{display:flex;gap:6px}
+.subl{font-size:12px;color:var(--muted);font-weight:600;margin-top:4px}
+.count{font-family:var(--f-mono);font-size:11px;color:var(--muted);letter-spacing:0;text-transform:none;margin-left:6px}
+.gname{border:1px solid var(--line);border-radius:8px;background:var(--surface-2);padding:7px 10px;font-size:15px;font-weight:600}
+.gname:focus{outline:none;border-color:var(--accent);background:var(--surface)}
+.innrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.innrow .subl{margin:0}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.stepper button{border:0;background:var(--surface-2);width:38px;height:36px;font-size:18px;font-weight:600}
+.stepper span{min-width:34px;text-align:center;font-family:var(--f-mono);font-size:14px}
+.inns{display:flex;flex-wrap:wrap;gap:6px}
+.inn{min-width:38px;height:36px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-family:var(--f-mono);font-size:13px}
+.inn[aria-current="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.bench{font-size:13px;color:var(--muted);margin:0}
+.bench b{color:var(--ink);font-weight:600}
+.rot-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
+.rot{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+.rot th,.rot td{padding:5px 2px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+.rot tr:last-child td{border-bottom:0}
+.rot th:first-child,.rot td:first-child{text-align:left;padding-left:8px;position:sticky;left:0;background:var(--surface);max-width:76px;overflow:hidden;text-overflow:ellipsis}
+.rot thead th{font-family:var(--f-display);font-weight:600;font-size:12px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.rot thead button{border:0;background:transparent;font:inherit;color:inherit;min-width:24px;min-height:26px;border-radius:6px}
+.rot thead th.on button{background:var(--accent);color:var(--accent-ink)}
+.rot td.p{font-family:var(--f-mono);font-size:11px;color:var(--ink)}
+.rot td.on{background:var(--accent-soft)}
+.rot td.bn{color:var(--muted)}
+.rot td.sits{font-family:var(--f-mono);font-weight:600}
+.rot td.sits.hi{color:var(--accent)}
+.confirm .btn{margin-left:4px}
+@media (max-width:480px){.ftb .tl{display:none}.ftb{padding:0 12px}}
+@media (pointer:coarse){select,.prow input,.addrow input,.gname{font-size:16px;min-height:42px}.inn{min-width:42px;height:40px}.stepper button{width:44px;height:42px}}
+.sm{display:none}
+.tbtn{width:44px;height:44px} .tbtn.play{width:52px;height:52px}
+.dot{min-width:38px;height:38px}
+.speed{margin-left:auto}
+
+/* touch screens: bigger targets, 16px inputs so iOS doesn't zoom on focus */
+@media (pointer:coarse){
+  textarea{font-size:16px}
+  .item{padding:11px 10px}
+  .chip{min-height:40px;padding:6px 13px 6px 9px;font-size:14px}
+  .btn.small{min-height:40px;padding:8px 12px}
+  .del{padding:10px 10px;font-size:13px}
+  .speed button{padding:8px 10px}
+}
+/* narrow: dots get their own row above the controls */
+@media (max-width:640px){
+  .dots{order:-1;flex-basis:100%;justify-content:flex-start}
+}
+/* phones */
+@media (max-width:600px){
+  .top{gap:8px;margin-bottom:10px}
+  .mark .word{display:none}
+  .namewrap{flex:1 1 0}
+  #playName{font-size:19px;padding:6px 8px}
+  .lg{display:none} .sm{display:inline}
+  .field-card{border-radius:0;border-inline:0;margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)))}
+  .caption{padding:10px 16px;min-height:0}
+  .capnote{font-size:15px}
+  .help.long{display:none}
+}
+
+/* present mode: field fills the screen for the dugout, circle visits or a projector */
+body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
+body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .share{display:none!important}
+body.present .app{display:block;max-width:none}
+body.present .field-card{border:0;border-radius:0;margin:0;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));display:flex;flex-direction:column}
+body.present .field-wrap{flex:1;min-height:0;display:flex}
+body.present #field{max-height:none;height:100%}
+body.present .caption,body.present .transport{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body.present .fieldtools{right:max(10px,env(safe-area-inset-right,0px))}
+body.present .capnote{font-size:17px}
+/* present on a phone held sideways: controls move beside the field */
+@media (orientation:landscape) and (max-height:600px){
+  body.present .field-card{flex-direction:row}
+  body.present .controls{width:min(320px,40vw);display:flex;flex-direction:column;border-left:1px solid var(--line);overflow-y:auto}
+  body.present .caption{flex:1;border-top:0;flex-direction:column;gap:6px;padding-left:16px}
+  body.present .transport{padding-right:max(16px,env(safe-area-inset-right,0px));padding-left:16px}
+  body.present .dots{order:-1;flex-basis:100%;justify-content:flex-start}
+  body.present .speed{margin-left:0}
+  body.present .fieldtools{right:10px}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <div class="mark">
+    <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="7" y="7" width="16" height="16" rx="2" transform="rotate(45 15 15)" fill="var(--accent)"/><rect x="12" y="12" width="6" height="6" transform="rotate(45 15 15)" fill="var(--surface)"/></svg>
+    <span class="word">Fieldwise</span>
+  </div>
+  <div class="namewrap">
+    <input id="playName" aria-label="Play name" value="">
+    <span class="dirty" id="dirty" hidden>Unsaved</span>
+  </div>
+  <div class="actions">
+    <button class="btn primary" id="saveBtn" type="button"><span class="lg">Save to My plays</span><span class="sm">Save</span></button>
+  </div>
+</header>
+
+<main class="app" id="app" data-mtab="edit">
+  <nav class="mtabs" role="tablist" aria-label="Panels">
+    <button type="button" role="tab" data-m="edit" aria-selected="true">Step</button>
+    <button type="button" role="tab" data-m="plays" aria-selected="false">Plays</button>
+    <button type="button" role="tab" data-m="team" aria-selected="false">Team</button>
+    <button type="button" role="tab" data-m="share" aria-selected="false">Share</button>
+  </nav>
+  <aside class="panel lib" aria-label="Play library">
+    <button class="btn newbtn" id="newBtn" type="button">+ New play</button>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabLib" aria-selected="true" type="button">Situations</button>
+      <button role="tab" id="tabMine" aria-selected="false" type="button">My plays</button>
+    </div>
+    <div id="libList"></div>
+  </aside>
+
+  <section class="stage" id="stage">
+    <div class="field-card">
+      <div class="field-wrap">
+        <div class="fieldtools">
+          <button class="ftb" id="namesBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg><span id="namesLbl">Names</span></button>
+          <button class="ftb" id="innBtn" type="button" hidden aria-label="Next inning"><span id="innBtnLbl">Inn 1</span></button>
+          <button class="ftb" id="zoomBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5M8 11h6M11 8v6"/></svg><span class="tl" id="zoomLbl">Infield</span></button>
+          <button class="ftb" id="presentBtn" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span class="tl" id="presentLbl">Present</span></button>
+        </div>
+        <svg id="field" viewBox="0 180 1000 820" role="img" aria-label="Softball field with draggable players">
+          <defs>
+            <pattern id="mow" patternUnits="userSpaceOnUse" width="80" height="80" patternTransform="rotate(45 500 900)">
+              <rect class="f-s1" width="40" height="80"/><rect class="f-s2" x="40" width="40" height="80"/>
+            </pattern>
+            <clipPath id="fair"><path d="M500,930 L-10,420 L12,412 A690,690 0 0 1 988,412 L1010,420 Z"/></clipPath>
+            <marker id="ar-f" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path class="mk-f" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ar-r" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path class="mk-r" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ar-b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path class="mk-b" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+          <rect class="f-foul" x="0" y="180" width="1000" height="820"/>
+          <path d="M500,900 L12,412 A690,690 0 0 1 988,412 Z" fill="url(#mow)"/>
+          <path class="f-track" d="M22,422 A676,676 0 0 1 978,422"/>
+          <path class="f-fence" d="M12,412 A690,690 0 0 1 988,412"/>
+          <text class="f-dist" x="80" y="460">200</text>
+          <text class="f-dist" x="245" y="300">200</text>
+          <text class="f-dist" x="500" y="248">200 ft</text>
+          <text class="f-dist" x="755" y="300">200</text>
+          <text class="f-dist" x="920" y="460">200</text>
+          <circle class="f-clay" cx="500" cy="762" r="207" clip-path="url(#fair)"/>
+          <circle class="f-line" cx="500" cy="762" r="28" style="stroke-width:2.5"/>
+          <rect class="f-base" x="490" y="759" width="20" height="5"/>
+          <circle class="f-clay" cx="500" cy="900" r="36"/>
+          <line class="f-line" x1="500" y1="900" x2="12" y2="412"/>
+          <line class="f-line" x1="500" y1="900" x2="988" y2="412"/>
+          <rect class="f-line" x="462" y="884" width="20" height="36" style="stroke-width:2"/>
+          <rect class="f-line" x="518" y="884" width="20" height="36" style="stroke-width:2"/>
+          <rect class="f-safe" x="650" y="758" width="14" height="14" transform="rotate(45 657 765)"/>
+          <rect class="f-base" x="639" y="747" width="14" height="14" transform="rotate(45 646 754)"/>
+          <rect class="f-base" x="493" y="601" width="14" height="14" transform="rotate(45 500 608)"/>
+          <rect class="f-base" x="347" y="747" width="14" height="14" transform="rotate(45 354 754)"/>
+          <path class="f-base" d="M492,894 L508,894 L508,901 L500,908 L492,901 Z"/>
+          <g id="trails"></g>
+          <g id="pieces"></g>
+        </svg>
+      </div>
+      <div class="controls">
+      <div class="caption" aria-live="polite">
+        <span class="stepno" id="stepNo">STEP 1 / 1</span>
+        <span class="capnote" id="capNote"></span>
+      </div>
+      <div class="transport">
+        <button class="tbtn" id="prevBtn" type="button" aria-label="Previous step"><svg viewBox="0 0 24 24"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg></button>
+        <button class="tbtn play" id="playBtn" type="button" aria-label="Play"><svg viewBox="0 0 24 24" id="playIcon"><path d="M7 4v16l13-8z"/></svg></button>
+        <button class="tbtn" id="nextBtn" type="button" aria-label="Next step"><svg viewBox="0 0 24 24"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg></button>
+        <div class="dots" id="dots" aria-label="Steps"></div>
+        <div class="speed" role="group" aria-label="Playback speed">
+          <button type="button" data-s="0.5" aria-pressed="false">0.5×</button>
+          <button type="button" data-s="1" aria-pressed="true">1×</button>
+          <button type="button" data-s="2" aria-pressed="false">2×</button>
+        </div>
+      </div>
+      </div>
+    </div>
+  </section>
+
+  <aside class="panel insp" aria-label="Step editor">
+    <div class="sec">
+      <span class="label" id="editLabel">Step 1 coaching note</span>
+      <textarea id="note" rows="4" placeholder="What should each player do on this step?"></textarea>
+      <div class="row">
+        <button class="btn small" id="addStep" type="button">+ Add step after this</button>
+        <button class="btn small" id="delStep" type="button">Delete step</button>
+      </div>
+      <p class="help">Drag any player or the ball to set where they are on this step. Add a step, move them again, then press play. Use Infield to zoom in when players are close together.</p>
+    </div>
+    <div class="sec">
+      <span class="label">On the field</span>
+      <div class="chips" id="chips"></div>
+      <div class="legend"><span><i style="background:var(--fielder)"></i>Defense</span><span><i style="background:var(--runner)"></i>Runners</span><span><i style="background:var(--ball);border:1px solid var(--muted)"></i>Ball</span></div>
+    </div>
+  </aside>
+  <aside class="panel team" aria-label="My team">
+    <div class="sec">
+      <span class="label">Show on the field</span>
+      <div class="tabs" role="group" aria-label="Field labels" style="margin-bottom:0">
+        <button type="button" id="lblPos" aria-pressed="true">Positions</button>
+        <button type="button" id="lblNames" aria-pressed="false">My players</button>
+      </div>
+      <p class="help">My players keeps the position on each circle and adds the player's name under it.</p>
+    </div>
+    <div class="sec">
+      <span class="label">Game lineups</span>
+      <select id="gameSel" aria-label="Saved game lineups"></select>
+      <input id="gameName" class="gname" aria-label="Game lineup name" autocomplete="off">
+      <div class="row">
+        <button class="btn small" id="gameNew" type="button">+ New game</button>
+        <button class="btn small" id="gameDup" type="button">Duplicate</button>
+        <span id="gameDelWrap" class="confirm"></span>
+      </div>
+      <div class="innrow">
+        <span class="subl">Innings in this game</span>
+        <div class="stepper">
+          <button type="button" id="innMinus" aria-label="Fewer innings">&minus;</button>
+          <span id="innCount">6</span>
+          <button type="button" id="innPlus" aria-label="More innings">+</button>
+        </div>
+      </div>
+      <p class="help">Lineups save automatically. Make one per game, or duplicate last game's and adjust.</p>
+    </div>
+    <div class="sec">
+      <span class="label" id="innLabel">Inning 1 lineup</span>
+      <div class="inns" id="inns" role="group" aria-label="Choose inning"></div>
+      <div class="lineup" id="lineup"></div>
+      <p class="bench" id="benchLine"></p>
+      <div class="row">
+        <button class="btn small" id="copyPrev" type="button">Copy inning before</button>
+        <button class="btn small" id="copyFwd" type="button">Use for later innings</button>
+      </div>
+    </div>
+    <div class="sec">
+      <span class="label">Rotation chart</span>
+      <div class="rot-wrap"><table class="rot" id="rot"></table></div>
+      <p class="help">Tap an inning number to edit that inning. Sits counts innings on the bench.</p>
+    </div>
+    <div class="sec">
+      <span class="label">Base runners</span>
+      <p class="help" style="margin:0">Used when runners or the batter are on the field.</p>
+      <div class="lineup" id="runnerLineup"></div>
+    </div>
+    <div class="sec">
+      <span class="label">Roster<span class="count" id="rosterCount"></span></span>
+      <div class="roster" id="roster"></div>
+      <form class="addrow" id="addForm">
+        <input id="addName" placeholder="Add a player" aria-label="New player name" autocomplete="off" enterkeyhint="done">
+        <button class="btn small" type="submit">Add</button>
+      </form>
+    </div>
+  </aside>
+  <aside class="panel share" aria-label="Share">
+    <div class="sec">
+      <span class="label">Share with players</span>
+      <p class="help">Copy a play code and send it to a player or parent. They paste it here to load the play.</p>
+      <div class="row">
+        <button class="btn small" id="copyCode" type="button">Copy play code</button>
+        <button class="btn small" id="importBtn" type="button">Load from code</button>
+      </div>
+      <textarea id="codeBox" rows="3" placeholder="Paste a play code here, then choose Load from code" aria-label="Play code"></textarea>
+    </div>
+  </aside>
+</main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(()=>{
+const NS='http://www.w3.org/2000/svg';
+const VB={x:0,y:180,w:1000,h:820};
+const PIECES=[
+  {id:'P',t:'P',k:'f'},{id:'C',t:'C',k:'f'},{id:'1B',t:'1B',k:'f'},{id:'2B',t:'2B',k:'f'},{id:'3B',t:'3B',k:'f'},
+  {id:'SS',t:'SS',k:'f'},{id:'LF',t:'LF',k:'f'},{id:'CF',t:'CF',k:'f'},{id:'RF',t:'RF',k:'f'},
+  {id:'R1',t:'R1',k:'r'},{id:'R2',t:'R2',k:'r'},{id:'R3',t:'R3',k:'r'},{id:'B',t:'B',k:'r'},{id:'ball',t:'',k:'b'}];
+const OPTIONAL=[['R1','Runner on 1st','var(--runner)'],['R2','Runner on 2nd','var(--runner)'],['R3','Runner on 3rd','var(--runner)'],['B','Batter','var(--runner)'],['ball','Ball','var(--ball)']];
+const DEF={P:[500,768],C:[500,945],'1B':[628,705],'2B':[572,640],'3B':[372,708],SS:[428,640],LF:[290,430],CF:[500,335],RF:[710,430],
+  R1:[646,754],R2:[500,608],R3:[354,754],B:[452,884],ball:[500,768]};
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+function mk(id,cat,name,show,steps){
+  let pos=clone(DEF);const frames=[];
+  steps.forEach(s=>{pos=clone(pos);Object.assign(pos,clone(s.m||{}));frames.push({pos,note:s.n})});
+  return{libId:id,cat,name,show,frames};
+}
+const LIB=[
+ mk('single-lf','Cutoffs','Single to left, bases empty',['B','ball'],[
+  {m:{ball:[500,880]},n:'Bases empty. Ground ball through the left side.'},
+  {m:{ball:[335,470],LF:[322,482],SS:[405,555],'2B':[505,618],CF:[385,425],'3B':[362,748],'1B':[640,742],P:[520,700],B:[600,800],RF:[600,560]},n:'LF charges the ball. SS goes out and lines up between LF and second. 2B covers the bag and CF backs up LF.'},
+  {m:{ball:[405,555],B:[668,722]},n:'LF throws to the cutoff, chest high. The batter rounds first.'},
+  {m:{ball:[503,614],B:[646,754]},n:'SS turns and throws to second. The batter holds at first.'}]),
+ mk('single-rf-r1','Cutoffs','Single to right, runner on first',['R1','B','ball'],[
+  {m:{R1:[662,738],ball:[500,880]},n:'Runner on first. Base hit to right field.'},
+  {m:{ball:[705,485],RF:[705,495],CF:[612,425],'2B':[505,618],'1B':[640,745],SS:[470,662],'3B':[358,748],P:[318,800],LF:[300,610],C:[500,905],R1:[520,622],B:[610,790]},n:'RF charges. SS lines up as the cutoff for a throw to third. 2B covers second. P sprints to back up third and LF backs up too.'},
+  {m:{ball:[470,662],R1:[425,690],B:[650,748]},n:'RF hits the cutoff. The runner from first heads for third.'},
+  {m:{ball:[360,748],R1:[368,742],B:[562,672]},n:'SS relays to third for the tag. Watch the batter try to take second on the throw.'}]),
+ mk('double-lcg','Relays','Double in the left-center gap',['B','ball'],[
+  {m:{ball:[500,880]},n:'Bases empty. Line drive splits the left-center gap.'},
+  {m:{ball:[392,305],LF:[365,318],CF:[412,305],SS:[418,455],'2B':[448,525],'1B':[560,660],'3B':[358,748],P:[315,800],RF:[600,520],C:[500,905],B:[646,754]},n:'Both outfielders chase. SS goes out as the lead relay and 2B trails about 15 feet behind as the backup. 3B covers third, P backs up third, 1B trails the runner to second.'},
+  {m:{ball:[418,455],B:[470,640],'1B':[515,625]},n:'The outfielder hits the lead relay. The batter rounds second.'},
+  {m:{ball:[360,748],B:[500,608]},n:'The relay throws to third. The runner retreats to second.'}]),
+ mk('bunt-r1','Bunt defense','Sacrifice bunt, runner on first',['R1','B','ball'],[
+  {m:{R1:[668,732],ball:[500,768]},n:'Runner on first, nobody out. The batter shows bunt.'},
+  {m:{ball:[500,885],B:[485,890],'1B':[600,800],'3B':[405,808],SS:[488,622],'2B':[618,722],P:[500,790],R1:[640,712]},n:'As the pitch goes, 1B and 3B crash. SS covers second and 2B covers first.'},
+  {m:{ball:[428,835],'3B':[430,830],P:[480,820],'1B':[580,822],'2B':[642,750],R1:[565,670],B:[545,858]},n:'Bunt down the third-base line. 3B fields it while C calls the play.'},
+  {m:{ball:[643,752],R1:[505,612],B:[620,775]},n:'The runner got a good jump, so take the sure out at first. 2B is covering.'}]),
+ mk('first-third','First and third','Steal with runners on first and third',['R1','R3','B','ball'],[
+  {m:{R1:[668,732],R3:[372,738],B:[470,895],ball:[500,768]},n:'Runners on first and third. The runner on first is going to steal.'},
+  {m:{ball:[500,922],R1:[592,680],'2B':[525,640],SS:[468,648],'3B':[360,745],R3:[392,770]},n:'Pitch is caught. 2B breaks for the bag, SS backs up, 3B keeps the runner close.'},
+  {m:{ball:[505,690],'2B':[505,690],R1:[540,640],R3:[410,790]},n:'C throws through. 2B cuts in front of the bag as the runner from third breaks.'},
+  {m:{ball:[500,890],C:[500,898],R3:[378,764],R1:[502,610]},n:'2B cuts it and fires home. The runner from third retreats and the trailing runner takes second.'}]),
+ mk('dp-643','Double plays','6-4-3 double play',['R1','B','ball'],[
+  {m:{R1:[668,732],ball:[500,880]},n:'Runner on first, less than two outs. Ground ball to short.'},
+  {m:{ball:[432,652],SS:[432,652],'2B':[505,616],R1:[585,682],B:[545,860],'1B':[646,752]},n:'SS fields it. 2B gets to the bag and gives a target.'},
+  {m:{ball:[505,614],R1:[532,640],B:[595,808]},n:'SS feeds 2B with a firm, chest-high throw.'},
+  {m:{ball:[642,752],R1:[512,622],B:[636,766]},n:'2B steps across, clears the slide, and turns it to first.'}]),
+ mk('rundown-12','Rundowns','Rundown between first and second',['R1','ball'],[
+  {m:{R1:[585,688],ball:[648,752],'1B':[648,752],SS:[505,612],'2B':[672,776],P:[610,780]},n:'Pickoff. The runner is hung up between first and second.'},
+  {m:{'1B':[612,718],ball:[612,718],R1:[560,664]},n:'1B runs hard at the runner with the ball held high, driving him toward second.'},
+  {m:{ball:[508,618],'1B':[632,700],'2B':[650,752],R1:[585,690]},n:'1B throws to SS at second and peels off. The runner reverses. 2B fills in at first.'},
+  {m:{SS:[578,682],ball:[578,682],R1:[592,696]},n:'SS runs him down and makes the tag. One throw, one out.'}])
+];
+
+const KEY='fieldwise.plays.v1';
+function loadMine(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
+function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}
+
+let mine=loadMine(), play=null, cur=0, playing=false, speed=1, tab='lib', dirty=false, raf=0, timer=0, confirmId=null;
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=id=>document.getElementById(id);
+const els={};
+
+// build pieces
+const gP=$('pieces'), gT=$('trails');
+PIECES.forEach(p=>{
+  const g=document.createElementNS(NS,'g');g.setAttribute('class','pc pc-'+p.k);g.dataset.id=p.id;
+  if(p.k==='b'){
+    g.innerHTML='<circle class="hit" r="22"/><circle class="bl" r="10"/><path class="st" d="M-6,-7 Q-2,0 -6,7 M6,-7 Q2,0 6,7"/>';
+  }else{
+    g.innerHTML='<circle class="hit" r="22"/><circle class="body" r="22"/><text>'+p.t+'</text><text class="nm" hidden></text>';
+  }
+  const title=document.createElementNS(NS,'title');title.textContent=p.id==='ball'?'Ball':p.id;g.appendChild(title);
+  gP.appendChild(g);els[p.id]=g;
+});
+// keep ball on top
+gP.appendChild(els.ball);
+
+// size pieces so they stay finger-sized on any screen (sizes are in field units; S = screen px per unit)
+let R=22,BR=10,TW=3.5;
+const FULL='0 180 1000 820', INFIELD='230 545 540 443';
+function sizePieces(){
+  const svg=$('field'),box=svg.getBoundingClientRect();if(!box.width)return;
+  const vb=svg.viewBox.baseVal,S=Math.min(box.width/vb.width,box.height/vb.height);
+  R=Math.max(22,Math.min(46,15/S));BR=Math.max(10,7/S);TW=Math.max(3.5,1.8/S);
+  const hit=Math.max(R,23/S);
+  PIECES.forEach(p=>{const g=els[p.id];
+    if(p.k==='b'){g.querySelector('.bl').setAttribute('r',BR);g.querySelector('.st').setAttribute('transform','scale('+(BR/10)+')');g.querySelector('.hit').setAttribute('r',Math.max(BR,15/S))}
+    else{g.querySelector('.body').setAttribute('r',R);g.querySelector('.body').style.strokeWidth=(R*.1)+'px';g.querySelector('.hit').setAttribute('r',hit);g.querySelector('text').style.fontSize=(R*.8)+'px';
+      const nm=g.querySelector('.nm');nm.setAttribute('y',R+3);nm.style.fontSize=(R*.74)+'px';nm.style.strokeWidth=(R*.16)+'px'}
+  });
+  if(play&&!playing)renderTrails(cur>0?play.frames[cur-1].pos:null,play.frames[cur].pos);
+}
+if(window.ResizeObserver)new ResizeObserver(()=>sizePieces()).observe($('field'));
+addEventListener('resize',sizePieces);
+
+function setPos(id,xy){els[id].setAttribute('transform','translate('+xy[0].toFixed(1)+' '+xy[1].toFixed(1)+')')}
+function applyPositions(pos){PIECES.forEach(p=>setPos(p.id,pos[p.id]||DEF[p.id]))}
+function applyVisibility(){PIECES.forEach(p=>{const vis=p.k==='f'||play.show.includes(p.id);vis?els[p.id].removeAttribute('hidden'):els[p.id].setAttribute('hidden','')})}
+
+function renderTrails(a,b){
+  gT.innerHTML='';
+  if(!a||!b)return;
+  PIECES.forEach(p=>{
+    if(p.k!=='f'&&!play.show.includes(p.id))return;
+    const s=a[p.id]||DEF[p.id],e=b[p.id]||DEF[p.id];
+    const dx=e[0]-s[0],dy=e[1]-s[1],d=Math.hypot(dx,dy);
+    if(d<14)return;
+    const inset=p.k==='b'?BR+2:R+2;
+    if(d<=inset+4)return;
+    const x2=e[0]-dx/d*inset,y2=e[1]-dy/d*inset;
+    const l=document.createElementNS(NS,'line');
+    const w=p.k==='b'?TW*.85:TW;
+    l.style.strokeWidth=w+'px';
+    l.style.strokeDasharray=p.k==='b'?(w*.9)+' '+(w*2):(w*2.6)+' '+(w*2);
+    l.setAttribute('x1',s[0]);l.setAttribute('y1',s[1]);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('class','tr tr-'+p.k);l.setAttribute('marker-end','url(#ar-'+p.k+')');
+    gT.appendChild(l);
+  });
+}
+
+function setCaption(i){
+  const n=play.frames.length;
+  $('stepNo').textContent='STEP '+(i+1)+' / '+n;
+  const note=(play.frames[i].note||'').trim();
+  const c=$('capNote');c.textContent=note||'No note for this step yet.';c.classList.toggle('muted',!note);
+}
+
+function renderDots(){
+  const d=$('dots');d.innerHTML='';
+  play.frames.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.className='dot';b.textContent=i+1;
+    b.setAttribute('aria-label','Step '+(i+1));if(i===cur)b.setAttribute('aria-current','true');
+    b.onclick=()=>{stop();showFrame(i)};d.appendChild(b)});
+}
+function updateTransport(){
+  if(!play)return;
+  const n=play.frames.length;
+  $('playIcon').innerHTML=playing?'<path d="M6 4h4v16H6zM14 4h4v16h-4z"/>':'<path d="M7 4v16l13-8z"/>';
+  $('playBtn').setAttribute('aria-label',playing?'Pause':'Play');
+  $('playBtn').disabled=n<2;
+  $('prevBtn').disabled=cur===0;$('nextBtn').disabled=cur>=n-1;
+  $('delStep').disabled=n<2;
+}
+function showFrame(i){
+  cur=Math.max(0,Math.min(i,play.frames.length-1));
+  applyPositions(play.frames[cur].pos);
+  renderTrails(cur>0?play.frames[cur-1].pos:null,play.frames[cur].pos);
+  setCaption(cur);renderDots();updateTransport();
+  $('note').value=play.frames[cur].note||'';
+  $('editLabel').textContent='Step '+(cur+1)+' coaching note';
+}
+
+const ease=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+function stop(){playing=false;cancelAnimationFrame(raf);clearTimeout(timer);updateTransport()}
+function animateStep(i){
+  const a=play.frames[i].pos,b=play.frames[i+1].pos;
+  renderTrails(a,b);setCaption(i+1);
+  const dur=reduce?1:1400/speed,t0=performance.now();
+  const tick=now=>{
+    if(!playing)return;
+    const t=Math.min(1,(now-t0)/dur),e=ease(t);
+    PIECES.forEach(p=>{const s=a[p.id]||DEF[p.id],f=b[p.id]||DEF[p.id];setPos(p.id,[s[0]+(f[0]-s[0])*e,s[1]+(f[1]-s[1])*e])});
+    if(t<1){raf=requestAnimationFrame(tick);return}
+    cur=i+1;renderDots();updateTransport();$('note').value=play.frames[cur].note||'';$('editLabel').textContent='Step '+(cur+1)+' coaching note';
+    if(cur<play.frames.length-1){timer=setTimeout(()=>{if(playing)animateStep(cur)},(reduce?1600:900)/speed)}
+    else{playing=false;updateTransport()}
+  };
+  raf=requestAnimationFrame(tick);
+}
+function togglePlay(){
+  if(playing){stop();showFrame(cur);return}
+  if(play.frames.length<2)return;
+  if(cur>=play.frames.length-1)showFrame(0);
+  playing=true;updateTransport();
+  timer=setTimeout(()=>{if(playing)animateStep(cur)},reduce?0:250);
+}
+
+function setDirty(v){dirty=v;$('dirty').hidden=!v}
+
+function loadPlay(p,opts={}){
+  stop();
+  play=clone(p);
+  if(!play.show)play.show=[];
+  $('playName').value=play.name||'Untitled play';
+  applyVisibility();renderChips();showFrame(0);setDirty(!!opts.dirty);renderLibrary();
+  if(opts.fromList&&matchMedia('(max-width:1179px)').matches){
+    try{$('stage').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})}catch(e){}
+  }
+}
+
+function renderChips(){
+  const c=$('chips');c.innerHTML='';
+  OPTIONAL.forEach(([id,label,col])=>{
+    const b=document.createElement('button');b.type='button';b.className='chip';
+    const on=play.show.includes(id);b.setAttribute('aria-pressed',on);
+    b.innerHTML='<span class="sw" style="background:'+col+'"></span>'+label;
+    b.onclick=()=>{stop();if(play.show.includes(id))play.show=play.show.filter(x=>x!==id);else play.show.push(id);
+      applyVisibility();renderChips();showFrame(cur);setDirty(true)};
+    c.appendChild(b);
+  });
+}
+
+function renderLibrary(){
+  const L=$('libList');L.innerHTML='';
+  $('tabLib').setAttribute('aria-selected',tab==='lib');$('tabMine').setAttribute('aria-selected',tab==='mine');
+  if(tab==='lib'){
+    const cats=[...new Set(LIB.map(p=>p.cat))];
+    cats.forEach(cat=>{
+      const g=document.createElement('div');g.className='group';
+      g.innerHTML='<div class="label">'+cat+'</div>';
+      LIB.filter(p=>p.cat===cat).forEach(p=>{
+        const b=document.createElement('button');b.type='button';b.className='item';
+        if(play&&play.libId===p.libId&&!play.mineId)b.setAttribute('aria-current','true');
+        b.innerHTML='<span class="nm"></span><span class="ct">'+p.frames.length+' steps</span>';
+        b.querySelector('.nm').textContent=p.name;
+        b.onclick=()=>loadPlay(p,{fromList:true});g.appendChild(b);
+      });
+      L.appendChild(g);
+    });
+  }else{
+    if(!mine.length){L.innerHTML='<p class="empty">No saved plays yet. Open a situation or start a new play, then choose Save to My plays.</p>';return}
+    mine.slice().sort((a,b)=>b.updated-a.updated).forEach(p=>{
+      const r=document.createElement('div');r.className='rowitem';
+      const b=document.createElement('button');b.type='button';b.className='item';
+      if(play&&play.mineId===p.mineId)b.setAttribute('aria-current','true');
+      b.innerHTML='<span class="nm"></span><span class="ct">'+p.frames.length+' steps</span>';
+      b.querySelector('.nm').textContent=p.name;b.onclick=()=>loadPlay(p,{fromList:true});r.appendChild(b);
+      if(confirmId===p.mineId){
+        const c=document.createElement('span');c.className='confirm';c.innerHTML='Delete? ';
+        const y=document.createElement('button');y.type='button';y.className='del';y.textContent='Yes';
+        y.onclick=()=>{mine=mine.filter(x=>x.mineId!==p.mineId);storeMine();if(play.mineId===p.mineId){delete play.mineId;setDirty(true)}confirmId=null;renderLibrary();toast('Play deleted')};
+        const n=document.createElement('button');n.type='button';n.className='del';n.textContent='No';n.onclick=()=>{confirmId=null;renderLibrary()};
+        c.append(y,n);r.appendChild(c);
+      }else{
+        const d=document.createElement('button');d.type='button';d.className='del';d.textContent='Delete';d.setAttribute('aria-label','Delete '+p.name);
+        d.onclick=()=>{confirmId=p.mineId;renderLibrary()};r.appendChild(d);
+      }
+      L.appendChild(r);
+    });
+  }
+}
+
+let toastT=0;
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+
+// dragging
+let drag=null;
+function svgPoint(ev){const svg=$('field');const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+gP.addEventListener('pointerdown',ev=>{
+  const g=ev.target.closest('.pc');if(!g)return;
+  ev.preventDefault();
+  if(playing){stop();showFrame(cur)}
+  const id=g.dataset.id,p=svgPoint(ev),pos=play.frames[cur].pos[id]||DEF[id];
+  drag={id,g,dx:pos[0]-p.x,dy:pos[1]-p.y};g.classList.add('drag');gP.appendChild(g);
+  if(id!=='ball')gP.appendChild(els.ball);
+  g.setPointerCapture(ev.pointerId);
+});
+gP.addEventListener('pointermove',ev=>{
+  if(!drag)return;const p=svgPoint(ev);
+  const x=Math.max(VB.x+14,Math.min(VB.x+VB.w-14,p.x+drag.dx)),y=Math.max(VB.y+14,Math.min(VB.y+VB.h-14,p.y+drag.dy));
+  play.frames[cur].pos[drag.id]=[Math.round(x),Math.round(y)];setPos(drag.id,[x,y]);
+  renderTrails(cur>0?play.frames[cur-1].pos:null,play.frames[cur].pos);setDirty(true);
+});
+const endDrag=()=>{if(!drag)return;drag.g.classList.remove('drag');drag=null};
+gP.addEventListener('pointerup',endDrag);gP.addEventListener('pointercancel',endDrag);
+
+// controls
+$('playBtn').onclick=togglePlay;
+$('prevBtn').onclick=()=>{stop();showFrame(cur-1)};
+$('nextBtn').onclick=()=>{stop();showFrame(cur+1)};
+document.querySelectorAll('.speed button').forEach(b=>b.onclick=()=>{speed=+b.dataset.s;document.querySelectorAll('.speed button').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+$('note').addEventListener('input',e=>{play.frames[cur].note=e.target.value;setCaption(cur);setDirty(true)});
+$('addStep').onclick=()=>{stop();play.frames.splice(cur+1,0,{pos:clone(play.frames[cur].pos),note:''});showFrame(cur+1);setDirty(true);toast('Step '+(cur+1)+' added. Drag players to their new spots.')};
+$('delStep').onclick=()=>{if(play.frames.length<2)return;stop();play.frames.splice(cur,1);showFrame(Math.min(cur,play.frames.length-1));setDirty(true)};
+$('playName').addEventListener('input',e=>{play.name=e.target.value;setDirty(true)});
+$('tabLib').onclick=()=>{tab='lib';renderLibrary()};
+$('tabMine').onclick=()=>{tab='mine';renderLibrary()};
+$('newBtn').onclick=()=>{loadPlay({name:'Untitled play',show:['B','ball'],frames:[{pos:clone(DEF),note:'Starting positions. Drag players into place, then add a step.'}]},{dirty:true});$('playName').focus();$('playName').select()};
+$('saveBtn').onclick=()=>{
+  play.name=($('playName').value||'').trim()||'Untitled play';$('playName').value=play.name;
+  const rec={mineId:play.mineId||('m'+Date.now().toString(36)),name:play.name,cat:'My plays',show:play.show,frames:play.frames,updated:Date.now()};
+  play.mineId=rec.mineId;delete play.libId;
+  const i=mine.findIndex(x=>x.mineId===rec.mineId);if(i>=0)mine[i]=rec;else mine.push(rec);
+  storeMine();setDirty(false);tab='mine';renderLibrary();toast('Saved to My plays');
+};
+
+// share codes
+function encode(p){const json=JSON.stringify({v:1,name:p.name,show:p.show,frames:p.frames.map(f=>({pos:f.pos,note:f.note}))});return 'FW1.'+btoa(unescape(encodeURIComponent(json)))}
+function decode(s){
+  s=(s||'').trim().replace(/\s+/g,'');if(s.startsWith('FW1.'))s=s.slice(4);
+  const o=JSON.parse(decodeURIComponent(escape(atob(s))));
+  if(!o||!Array.isArray(o.frames)||!o.frames.length)throw new Error('bad');
+  o.frames=o.frames.map(f=>{const pos=clone(DEF);for(const k in (f.pos||{}))if(DEF[k]&&Array.isArray(f.pos[k]))pos[k]=[+f.pos[k][0]||0,+f.pos[k][1]||0];return{pos,note:String(f.note||'')}});
+  o.show=Array.isArray(o.show)?o.show.filter(x=>OPTIONAL.some(([id])=>id===x)):[];
+  return{name:String(o.name||'Shared play'),show:o.show,frames:o.frames};
+}
+$('copyCode').onclick=()=>{
+  const code=encode({...play,name:$('playName').value||play.name});const box=$('codeBox');
+  const fallback=()=>{box.value=code;box.focus();box.select();toast('Code selected. Copy it from the box.')};
+  try{navigator.clipboard.writeText(code).then(()=>toast('Play code copied'),fallback)}catch(e){fallback()}
+};
+$('importBtn').onclick=()=>{
+  try{const p=decode($('codeBox').value);loadPlay(p,{dirty:true});$('codeBox').value='';toast('Loaded "'+p.name+'". Save it to keep it.')}
+  catch(e){toast('That code didn’t load. Check you pasted the whole thing, starting with FW1.')}
+};
+
+// ---------- team ----------
+const TKEY='fieldwise.team.v1';
+const SEED=['Emerson','Kayton','Maylee','Avery','LeahMarie','Morgan','Makiya','Reagan','London','Rilyn','Sophia'];
+const FPOS=['P','C','1B','2B','3B','SS','LF','CF','RF'],RPOS=['R1','R2','R3','B'];
+const POSNAME={P:'Pitcher',C:'Catcher','1B':'First base','2B':'Second base','3B':'Third base',SS:'Shortstop',LF:'Left field',CF:'Center field',RF:'Right field',R1:'Runner on 1st',R2:'Runner on 2nd',R3:'Runner on 3rd',B:'Batter'};
+const newId=pre=>pre+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function migrateTeam(t){
+  if(!t.runners){t.runners={};RPOS.forEach(p=>t.runners[p]=(t.lineup&&t.lineup[p])||'')}
+  if(!Array.isArray(t.games)||!t.games.length){
+    const base={};FPOS.forEach(p=>base[p]=(t.lineup&&t.lineup[p])||'');
+    t.games=[{id:'g1',name:'Game 1',innings:Array.from({length:6},()=>clone(base))}];
+    t.activeGame='g1';t.inning=0;
+  }
+  if(!t.games.some(g=>g.id===t.activeGame))t.activeGame=t.games[0].id;
+  t.inning=+t.inning||0;
+  return t;
+}
+function loadTeam(){
+  try{const t=JSON.parse(localStorage.getItem(TKEY)||'null');if(t&&Array.isArray(t.roster))return migrateTeam(t)}catch(e){}
+  const roster=SEED.map((n,i)=>({id:'p'+i,name:n}));const lineup={};
+  FPOS.forEach((p,i)=>lineup[p]=roster[i].id);
+  return migrateTeam({roster,lineup,showNames:false});
+}
+let team=loadTeam();
+function storeTeam(){try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}}
+const playerById=id=>id&&team.roster.find(r=>r.id===id);
+function game(){return team.games.find(g=>g.id===team.activeGame)||team.games[0]}
+function curLine(){const g=game();team.inning=Math.max(0,Math.min(team.inning,g.innings.length-1));return g.innings[team.inning]}
+function nameFor(pos){const p=playerById(FPOS.includes(pos)?curLine()[pos]:team.runners[pos]);return p?p.name.trim():''}
+
+function applyNames(){
+  PIECES.forEach(p=>{if(p.k==='b')return;
+    const t=els[p.id].querySelector('.nm'),n=team.showNames?nameFor(p.id):'';
+    t.textContent=n;n?t.removeAttribute('hidden'):t.setAttribute('hidden','');
+    els[p.id].querySelector('title').textContent=POSNAME[p.id]+(nameFor(p.id)?': '+nameFor(p.id):'');
+  });
+  $('lblPos').setAttribute('aria-pressed',!team.showNames);$('lblNames').setAttribute('aria-pressed',team.showNames);
+  $('namesBtn').setAttribute('aria-pressed',team.showNames);
+  team.showNames?$('innBtn').removeAttribute('hidden'):$('innBtn').setAttribute('hidden','');
+  $('innBtnLbl').textContent='Inn '+(team.inning+1);
+}
+function setShowNames(v){team.showNames=v;storeTeam();applyNames()}
+
+function assign(pos,id){
+  const isF=FPOS.includes(pos),map=isF?curLine():team.runners,group=isF?FPOS:RPOS,prev=map[pos]||'';
+  let msg='';
+  if(id){const other=group.find(k=>k!==pos&&map[k]===id);
+    if(other){map[other]=prev;const a=playerById(id).name,b=playerById(prev)?playerById(prev).name:'';
+      msg=a+' moved to '+pos+(b?', '+b+' to '+other:'')+'.'}}
+  map[pos]=id;storeTeam();renderTeam();
+  if(msg)toast(msg);
+}
+function lineupRows(container,group,map,isRunner){
+  container.innerHTML='';
+  group.forEach(pos=>{
+    const b=document.createElement('span');b.className='posb'+(isRunner?' r':'');b.textContent=pos;b.title=POSNAME[pos];
+    const s=document.createElement('select');s.id='lu-'+pos;s.setAttribute('aria-label',POSNAME[pos]);
+    s.innerHTML='<option value="">— Not set —</option>';
+    team.roster.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name||'(no name)';s.appendChild(o)});
+    s.value=playerById(map[pos])?map[pos]:'';
+    s.onchange=()=>assign(pos,s.value);
+    container.append(b,s);
+  });
+}
+function sitsFor(id){return game().innings.filter(l=>!FPOS.some(k=>l[k]===id)).length}
+
+function renderGames(){
+  const sel=$('gameSel');sel.innerHTML='';
+  team.games.forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=g.name||'Untitled game';sel.appendChild(o)});
+  sel.value=game().id;
+  if(document.activeElement!==$('gameName'))$('gameName').value=game().name;
+  $('innCount').textContent=game().innings.length;
+  $('innMinus').disabled=game().innings.length<=1;$('innPlus').disabled=game().innings.length>=9;
+  renderDelete(false);
+}
+function renderDelete(confirming){
+  const w=$('gameDelWrap');w.innerHTML='';
+  if(team.games.length<2)return;
+  if(confirming){
+    w.append('Delete this game?');
+    const y=document.createElement('button');y.type='button';y.className='btn small';y.textContent='Delete';
+    y.onclick=()=>{const name=game().name;team.games=team.games.filter(g=>g.id!==team.activeGame);team.activeGame=team.games[0].id;team.inning=0;storeTeam();renderTeam();toast('Deleted '+name)};
+    const n=document.createElement('button');n.type='button';n.className='btn small';n.textContent='Keep';n.onclick=()=>renderDelete(false);
+    w.append(y,n);
+  }else{
+    const d=document.createElement('button');d.type='button';d.className='btn small';d.textContent='Delete';d.onclick=()=>renderDelete(true);w.appendChild(d);
+  }
+}
+function renderInnings(){
+  const box=$('inns');box.innerHTML='';
+  game().innings.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='inn';b.textContent=i+1;
+    b.setAttribute('aria-label','Inning '+(i+1));if(i===team.inning)b.setAttribute('aria-current','true');
+    b.onclick=()=>setInning(i);box.appendChild(b)});
+  $('innLabel').textContent='Inning '+(team.inning+1)+' lineup';
+  $('copyPrev').disabled=team.inning===0;$('copyFwd').disabled=team.inning>=game().innings.length-1;
+}
+function renderBench(){
+  const l=curLine(),bench=team.roster.filter(r=>!FPOS.some(k=>l[k]===r.id));
+  const open=FPOS.filter(k=>!playerById(l[k]));
+  const el=$('benchLine');el.textContent='';
+  if(bench.length){el.append('On the bench: ');const b=document.createElement('b');b.textContent=bench.map(r=>r.name).join(', ');el.appendChild(b)}
+  else el.append('Everyone is in the field this inning.');
+  if(open.length)el.append(' Open spots: '+open.join(', ')+'.');
+}
+function renderRot(){
+  const g=game(),t=$('rot');t.innerHTML='';
+  const thead=document.createElement('thead'),hr=document.createElement('tr');
+  hr.innerHTML='<th>Player</th>';
+  g.innings.forEach((_,i)=>{const th=document.createElement('th');if(i===team.inning)th.className='on';
+    const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-label','Edit inning '+(i+1));b.onclick=()=>setInning(i);
+    th.appendChild(b);hr.appendChild(th)});
+  const st=document.createElement('th');st.textContent='Sits';hr.appendChild(st);thead.appendChild(hr);t.appendChild(thead);
+  const tb=document.createElement('tbody');
+  const sits=team.roster.map(r=>sitsFor(r.id)),avg=sits.reduce((a,b)=>a+b,0)/Math.max(1,sits.length);
+  team.roster.forEach((r,ri)=>{
+    const tr=document.createElement('tr');const nm=document.createElement('td');nm.textContent=r.name||'(no name)';nm.title=r.name;tr.appendChild(nm);
+    g.innings.forEach((l,i)=>{const td=document.createElement('td');const pos=FPOS.find(k=>l[k]===r.id);
+      td.className=(pos?'p':'bn')+(i===team.inning?' on':'');td.textContent=pos||'–';tr.appendChild(td)});
+    const s=document.createElement('td');s.className='sits'+(sits[ri]>avg+1?' hi':'');s.textContent=sits[ri];tr.appendChild(s);
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb);
+}
+function renderRoster(){
+  const box=$('roster');box.innerHTML='';
+  $('rosterCount').textContent=team.roster.length+' players';
+  const l=curLine();
+  team.roster.forEach(r=>{
+    const row=document.createElement('div');row.className='prow';
+    const where=document.createElement('span');where.className='where';where.textContent=FPOS.find(k=>l[k]===r.id)||'';
+    const inp=document.createElement('input');inp.value=r.name;inp.id='pl-'+r.id;inp.setAttribute('aria-label','Player name');inp.autocomplete='off';
+    inp.oninput=()=>{r.name=inp.value;storeTeam();applyNames();lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);renderBench();renderRot()};
+    const del=document.createElement('button');del.type='button';del.className='del';del.textContent='Remove';del.setAttribute('aria-label','Remove player');
+    del.onclick=()=>{team.roster=team.roster.filter(x=>x.id!==r.id);
+      team.games.forEach(g=>g.innings.forEach(li=>{for(const k in li)if(li[k]===r.id)li[k]=''}));
+      for(const k in team.runners)if(team.runners[k]===r.id)team.runners[k]='';
+      storeTeam();renderTeam();toast('Removed '+(r.name||'player'))};
+    row.append(where,inp,del);box.appendChild(row);
+  });
+}
+function renderTeam(){
+  renderGames();renderInnings();
+  lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);
+  renderBench();renderRot();renderRoster();applyNames();
+}
+function setInning(i){team.inning=i;storeTeam();renderTeam()}
+
+$('gameSel').onchange=e=>{team.activeGame=e.target.value;team.inning=0;storeTeam();renderTeam()};
+$('gameName').addEventListener('input',e=>{game().name=e.target.value;storeTeam();
+  const o=[...$('gameSel').options].find(x=>x.value===game().id);if(o)o.textContent=e.target.value||'Untitled game'});
+$('gameNew').onclick=()=>{
+  const first=clone(game().innings[0]);const g={id:newId('g'),name:'Game '+(team.games.length+1),innings:Array.from({length:game().innings.length},()=>clone(first))};
+  team.games.push(g);team.activeGame=g.id;team.inning=0;storeTeam();renderTeam();
+  $('gameName').focus();$('gameName').select();toast('New game started from inning 1 of the last lineup. Rename it and adjust each inning.');
+};
+$('gameDup').onclick=()=>{
+  const g=clone(game());g.id=newId('g');g.name=(game().name||'Game')+' copy';
+  team.games.push(g);team.activeGame=g.id;team.inning=0;storeTeam();renderTeam();
+  $('gameName').focus();$('gameName').select();toast('Duplicated. Rename it for the next game.');
+};
+$('innMinus').onclick=()=>{const g=game();if(g.innings.length<=1)return;g.innings.pop();storeTeam();renderTeam()};
+$('innPlus').onclick=()=>{const g=game();if(g.innings.length>=9)return;g.innings.push(clone(g.innings[g.innings.length-1]));storeTeam();renderTeam()};
+$('copyPrev').onclick=()=>{if(team.inning<1)return;game().innings[team.inning]=clone(game().innings[team.inning-1]);storeTeam();renderTeam();toast('Copied inning '+team.inning+' into inning '+(team.inning+1))};
+$('copyFwd').onclick=()=>{const g=game();for(let i=team.inning+1;i<g.innings.length;i++)g.innings[i]=clone(g.innings[team.inning]);storeTeam();renderTeam();toast('Innings '+(team.inning+2)+'–'+g.innings.length+' now match inning '+(team.inning+1))};
+$('innBtn').onclick=()=>{setInning((team.inning+1)%game().innings.length);toast('Inning '+(team.inning+1)+' lineup')};
+
+$('addForm').addEventListener('submit',e=>{
+  e.preventDefault();const n=$('addName').value.trim();if(!n)return;
+  team.roster.push({id:newId('p'),name:n});storeTeam();renderTeam();
+  $('addName').value='';$('addName').focus();toast('Added '+n+'. Pick a position for them in the lineup.');
+});
+$('lblPos').onclick=()=>setShowNames(false);
+$('lblNames').onclick=()=>setShowNames(true);
+$('namesBtn').onclick=()=>setShowNames(!team.showNames);
+
+// panel tabs (phone + tablet)
+document.querySelectorAll('.mtabs button').forEach(b=>b.onclick=()=>{
+  $('app').dataset.mtab=b.dataset.m;
+  document.querySelectorAll('.mtabs button').forEach(x=>x.setAttribute('aria-selected',x===b));
+});
+
+// infield zoom
+let zoomed=false;
+$('zoomBtn').onclick=()=>{
+  zoomed=!zoomed;$('field').setAttribute('viewBox',zoomed?INFIELD:FULL);
+  $('zoomBtn').setAttribute('aria-pressed',zoomed);$('zoomLbl').textContent=zoomed?'Full field':'Infield';
+  sizePieces();
+};
+
+// present mode
+let presenting=false,wake=null;
+function setPresent(on){
+  presenting=on;document.body.classList.toggle('present',on);
+  $('presentBtn').setAttribute('aria-pressed',on);$('presentLbl').textContent=on?'Exit':'Present';
+  try{
+    if(on&&document.documentElement.requestFullscreen&&!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});
+    if(!on&&document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+  }catch(e){}
+  try{
+    if(on&&navigator.wakeLock)navigator.wakeLock.request('screen').then(l=>wake=l).catch(()=>{});
+    if(!on&&wake){wake.release().catch(()=>{});wake=null}
+  }catch(e){}
+  window.scrollTo(0,0);requestAnimationFrame(sizePieces);
+}
+$('presentBtn').onclick=()=>setPresent(!presenting);
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&presenting)setPresent(false)});
+
+// keyboard
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&presenting){setPresent(false);return}
+  if(e.target.closest('input,textarea'))return;
+  if(e.key===' '){e.preventDefault();togglePlay()}
+  else if(e.key==='ArrowRight'){stop();showFrame(cur+1)}
+  else if(e.key==='ArrowLeft'){stop();showFrame(cur-1)}
+});
+
+loadPlay(LIB[1]);
+renderTeam();applyNames();
+sizePieces();
+})();
+</script>
+
+</body>
+</html>
