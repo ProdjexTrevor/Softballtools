@@ -344,6 +344,27 @@ body.view-drills .top{justify-content:flex-start}
 @media (pointer:coarse){.dsearch,.fld input,.fld textarea{font-size:16px}.tag{min-height:36px;padding:6px 12px}}
 body.locked{overflow:hidden}
 
+/* ---------- lineups section: field + team only ---------- */
+.lustrip{display:none;flex-direction:column;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.luhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.lubench{margin:0;font-size:15px;line-height:1.45}
+.lubench b{font-weight:600}
+.lubench .open{color:var(--accent);font-weight:600}
+.luhint{margin:0}
+body.view-lineups .lustrip{display:flex}
+body.view-lineups .lib,body.view-lineups .controls,body.view-lineups .insp,body.view-lineups .share,
+body.view-lineups .mtabs,body.view-lineups .namewrap,body.view-lineups .actions,
+body.view-lineups #namesBtn,body.view-lineups #exitPracticeTool,
+body.view-lineups .labels-sec,body.view-lineups .runners-sec{display:none!important}
+body.view-lineups .team{display:flex!important}
+body.view-lineups .top{justify-content:flex-start}
+body.view-lineups .app{grid-template-areas:"stage" "panel"}
+body.view-lineups .pc{cursor:pointer}
+body.view-lineups .pc.pick .body{stroke:var(--runner);stroke-width:5px!important}
+@media (min-width:880px) and (orientation:landscape){body.view-lineups .app{grid-template-columns:minmax(0,1fr) 360px;grid-template-areas:"stage panel"}}
+@media (min-width:1180px){body.view-lineups .app{grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"stage team";grid-template-rows:auto}}
+@media (pointer:fine){body.view-lineups .luhint{display:none}}
+body.view-lineups.present .luhint{display:none}
 /* present mode: field fills the screen for the dugout, circle visits or a projector */
 body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
 body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .team,body.present .share{display:none!important}
@@ -377,6 +398,7 @@ body.present .capnote{font-size:17px}
   </div>
   <nav class="views" aria-label="Sections">
     <button type="button" data-v="board" aria-pressed="true">Play board</button>
+    <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
     <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
   </nav>
   <div class="namewrap">
@@ -452,6 +474,14 @@ body.present .capnote{font-size:17px}
           <g id="pieces"></g>
         </svg>
       </div>
+      <div class="lustrip" aria-live="polite">
+        <div class="luhead">
+          <span class="stepno" id="luGame">GAME 1 · INNING 1</span>
+          <div class="inns" id="luInns" role="group" aria-label="Choose inning"></div>
+        </div>
+        <p class="lubench" id="luBench"></p>
+        <p class="help luhint">Tap a player on the field to change who plays there.</p>
+      </div>
       <div class="controls">
       <div class="caption" aria-live="polite">
         <span class="stepno" id="stepNo">STEP 1 / 1</span>
@@ -497,7 +527,7 @@ body.present .capnote{font-size:17px}
     </div>
   </aside>
   <aside class="panel team" aria-label="My team">
-    <div class="sec">
+    <div class="sec labels-sec">
       <span class="label">Show on the field</span>
       <div class="tabs" role="group" aria-label="Field labels" style="margin-bottom:0">
         <button type="button" id="lblPos" aria-pressed="true">Positions</button>
@@ -545,7 +575,7 @@ body.present .capnote{font-size:17px}
       <div class="rot-wrap"><table class="rot" id="rot"></table></div>
       <p class="help">Tap an inning number to edit that inning. Sits counts innings on the bench.</p>
     </div>
-    <div class="sec">
+    <div class="sec runners-sec">
       <span class="label">Base runners</span>
       <p class="help" style="margin:0">Used when runners or the batter are on the field.</p>
       <div class="lineup" id="runnerLineup"></div>
@@ -690,7 +720,7 @@ const KEY='fieldwise.plays.v1';
 function loadMine(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
 function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}
 
-let practicing=false;
+let practicing=false, view='board', luSaved=null;
 let mine=loadMine(), play=null, cur=0, playing=false, speed=1, tab='lib', dirty=false, raf=0, timer=0, confirmId=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -883,6 +913,7 @@ let drag=null;
 function svgPoint(ev){const svg=$('field');const pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
 gP.addEventListener('pointerdown',ev=>{
   const g=ev.target.closest('.pc');if(!g)return;
+  if(view==='lineups'){ev.preventDefault();pickPos(g.dataset.id);return}
   ev.preventDefault();
   if(playing){stop();showFrame(cur)}
   const id=g.dataset.id,p=svgPoint(ev),pos=play.frames[cur].pos[id]||DEF[id];
@@ -971,13 +1002,13 @@ function nameFor(pos){const p=playerById(FPOS.includes(pos)?curLine()[pos]:team.
 
 function applyNames(){
   PIECES.forEach(p=>{if(p.k==='b')return;
-    const t=els[p.id].querySelector('.nm'),n=team.showNames?nameFor(p.id):'';
+    const t=els[p.id].querySelector('.nm'),n=(team.showNames||view==='lineups')?nameFor(p.id):'';
     t.textContent=n;n?t.removeAttribute('hidden'):t.setAttribute('hidden','');
     els[p.id].querySelector('title').textContent=POSNAME[p.id]+(nameFor(p.id)?': '+nameFor(p.id):'');
   });
   $('lblPos').setAttribute('aria-pressed',!team.showNames);$('lblNames').setAttribute('aria-pressed',team.showNames);
   $('namesBtn').setAttribute('aria-pressed',team.showNames);
-  team.showNames?$('innBtn').removeAttribute('hidden'):$('innBtn').setAttribute('hidden','');
+  (team.showNames||view==='lineups')?$('innBtn').removeAttribute('hidden'):$('innBtn').setAttribute('hidden','');
   $('innBtnLbl').textContent='Inn '+(team.inning+1);
 }
 function setShowNames(v){team.showNames=v;storeTeam();applyNames()}
@@ -1108,10 +1139,33 @@ function renderOut(){
   if(team.roster.length>9)note+=' '+never+' of '+team.roster.length+' players never sit.';
   $('outNote').textContent=note;
 }
+function renderLuStrip(){
+  if(!$('luInns'))return;
+  const g=game(),l=curLine();
+  $('luGame').textContent=(g.name||'Game').toUpperCase()+' \u00b7 INNING '+(team.inning+1);
+  const box=$('luInns');box.innerHTML='';
+  g.innings.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='inn';b.textContent=i+1;
+    b.setAttribute('aria-label','Inning '+(i+1));if(i===team.inning)b.setAttribute('aria-current','true');b.onclick=()=>setInning(i);box.appendChild(b)});
+  const bench=team.roster.filter(r=>!FPOS.some(k=>l[k]===r.id)),open=FPOS.filter(k=>!playerById(l[k]));
+  const el=$('luBench');el.textContent='';
+  if(bench.length){el.append('On the bench: ');const b=document.createElement('b');b.textContent=bench.map(r=>r.name).join(', ');el.appendChild(b)}
+  else el.append('Everyone is in the field this inning.');
+  if(open.length){const o=document.createElement('span');o.className='open';o.textContent=' Open: '+open.join(', ');el.appendChild(o)}
+}
+function pickPos(id){
+  if(!FPOS.includes(id))return;
+  document.querySelectorAll('.pc.pick').forEach(x=>x.classList.remove('pick'));
+  els[id].classList.add('pick');
+  const s=$('lu-'+id);if(!s)return;
+  try{s.scrollIntoView({block:'center',behavior:reduce?'auto':'smooth'})}catch(e){}
+  s.focus({preventScroll:true});
+  try{if(s.showPicker)s.showPicker()}catch(e){}
+  s.addEventListener('blur',()=>els[id].classList.remove('pick'),{once:true});
+}
 function renderTeam(){
   renderGames();renderInnings();
   lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);
-  renderBench();renderOut();renderRot();renderRoster();applyNames();
+  renderBench();renderOut();renderRot();renderRoster();applyNames();renderLuStrip();
 }
 function setInning(i){team.inning=i;storeTeam();renderTeam()}
 
@@ -1378,15 +1432,24 @@ $('dSearch').addEventListener('input',e=>{dState.q=e.target.value;renderDrills()
 $('dSort').onchange=e=>{dState.sort=e.target.value;renderDrills()};
 
 // section switch
-let view='board';
 function setView(v){
-  view=v;const d=v==='drills';
-  if(d){stop();if(presenting)setPresent(false)}
+  const prev=view;if(v===prev)return;
+  const d=v==='drills',lu=v==='lineups';
+  stop();
+  if(d&&presenting)setPresent(false);
+  if(prev==='board'&&practicing)exitPractice();
+  // leaving the lineups board: bring back the play that was open
+  if(prev==='lineups'&&luSaved){play=luSaved.play;applyVisibility();renderChips();showFrame(luSaved.cur);setDirty(luSaved.dirty);renderLibrary();luSaved=null}
+  // entering: a plain field with every fielder in their spot
+  if(lu&&!luSaved){if(prev!=='lineups'){luSaved={play,cur,dirty}}
+    play={name:'Lineup',show:[],frames:[{pos:clone(DEF),note:''}]};applyVisibility();showFrame(0)}
+  view=v;
   document.body.classList.toggle('view-drills',d);
+  document.body.classList.toggle('view-lineups',lu);
   $('app').hidden=d;$('drills').hidden=!d;
   document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
-  try{history.replaceState(null,'',d?'#drills':location.pathname+location.search)}catch(e){}
-  if(d)renderDrills();else requestAnimationFrame(sizePieces);
+  try{history.replaceState(null,'',v==='board'?location.pathname+location.search:'#'+v)}catch(e){}
+  if(d)renderDrills();else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
   try{scrollTo(0,0)}catch(e){}
 }
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -1396,7 +1459,7 @@ if(matchMedia('(min-width:900px)').matches)$('dTagsBox').open=true;
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&!$('dSheet').hidden){closeSheet();return}
   if(e.key==='Escape'&&presenting){setPresent(false);return}
-  if(view==='drills')return;
+  if(view!=='board')return;
   if(e.target.closest('input,textarea'))return;
   if(e.key===' '){e.preventDefault();togglePlay()}
   else if(e.key==='ArrowRight'){stop();showFrame(cur+1)}
@@ -1406,7 +1469,7 @@ document.addEventListener('keydown',e=>{
 loadPlay(LIB[1]);
 renderTeam();applyNames();
 sizePieces();
-if(location.hash==='#drills')setView('drills');
+if(location.hash==='#drills'||location.hash==='#lineups')setView(location.hash.slice(1));
 })();
 </script>
 
