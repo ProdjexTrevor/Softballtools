@@ -1661,7 +1661,7 @@ const prefsOf=()=>({activeGame:team.activeGame,inning:team.inning,runners:team.r
 function applyTeamState(st,prefs){
   if(!st||!st.team){TEAMCTX=null;return false}
   const keepGame=team.activeGame,keepInn=team.inning;
-  TEAMCTX={id:st.team.id,name:st.team.name,role:st.team.role,joinCode:st.team.joinCode,members:st.members||[],teams:st.teams||[],rosterVersion:st.roster?st.roster.version:0};
+  TEAMCTX={id:st.team.id,name:st.team.name,role:st.team.role,joinCode:st.team.joinCode,members:st.members||[],invites:st.invites||[],teams:st.teams||[],rosterVersion:st.roster?st.roster.version:0};
   team.roster=Array.isArray(st.roster&&st.roster.value)?st.roster.value:[];
   team.games=(st.games||[]).map(r=>shapeGame({...r.data,id:r.id,shared:r.shared,version:r.version,mine:r.mine,ownerEmail:r.ownerEmail,updatedByEmail:r.updatedByEmail}));
   LAST={roster:JSON.stringify(team.roster),games:{},prefs:LAST.prefs};
@@ -1768,6 +1768,22 @@ function renderTeamBox(){
         row.appendChild(rm)}
       ul.appendChild(row)});
     box.appendChild(ul);
+    if(owner){
+      const inv=h('form','addrow');
+      inv.innerHTML='<input id="inviteEmail" type="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="Coach\u2019s email" aria-label="Coach\u2019s email" autocomplete="off"><button class="btn small primary" type="submit">Add coach</button>';
+      inv.onsubmit=async e=>{e.preventDefault();const email=$('inviteEmail').value.trim();if(!email)return;
+        await teamAction({action:'invite',email},null);
+        const pending=(TEAMCTX&&TEAMCTX.invites||[]).includes(email.toLowerCase());
+        toast(pending?'Invited '+email+'. They join the team when they sign up with that email.':'Added '+email+' to the team.')};
+      box.append(h('span','subl','Add coach by email'),inv);
+      if(t.invites&&t.invites.length){
+        const pl=h('div','tm-members');
+        t.invites.forEach(em=>{const row=h('div','tm-mem');row.append(h('span','tm-email',em),h('span','tm-r','Invited'));
+          const rm=h('button','del','Cancel');rm.type='button';rm.onclick=()=>teamAction({action:'uninvite',email:em},'Invite canceled');
+          row.appendChild(rm);pl.appendChild(row)});
+        box.append(pl,h('p','help','Invited coaches create an account on this site with that email and choose their own password. They\u2019re added to the team as soon as they do.'));
+      }
+    }
     const lv=h('button','btn small',owner?(t.members.length>1?'Leave team':'Delete team'):'Leave team');lv.type='button';
     lv.onclick=()=>{if(lv.dataset.confirm){teamAction({action:'leave'},owner?'Team deleted.':'You left the team.')}
       else{lv.dataset.confirm='1';lv.textContent=owner?'Tap again to delete the team':'Tap again to leave'}};

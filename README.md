@@ -24,6 +24,7 @@ The API creates its tables automatically on first use:
 - `teams` — team name and join code (the schema supports many teams; the app uses one per coach for now)
 - `team_members` — coach ↔ team, with role `owner` (head coach) or `coach`
 - `team_roster` — the team's shared roster (versioned)
+- `team_invites` — emails the head coach added; claimed automatically when that coach signs up or signs in
 - `team_games` — game lineups: innings, batting order, `shared` flag, owner (versioned)
 
 ### Team rules
@@ -58,7 +59,7 @@ Add an environment variable `SIGNUP_CODE` (for example `tigers2026`) in Vercel �
 | GET | `/api/data` | All saved data for the coach |
 | PUT | `/api/data` | `{ key, value }` where key is `plays`, `team`, `drills`, `practice` or `prefs` |
 | GET | `/api/team` | The coach's team, members, roster and visible lineups |
-| POST | `/api/team` | `{ action }`: `create`, `join`, `leave`, `remove`, `newcode`, `rename` |
+| POST | `/api/team` | `{ action }`: `create`, `join`, `leave`, `remove`, `invite`, `uninvite`, `newcode`, `rename` |
 | PUT | `/api/team/roster` | `{ teamId, value, version }` |
 | PUT | `/api/team/game` | `{ teamId, id, data, shared, version }` |
 | DELETE | `/api/team/game` | `{ teamId, id }` |

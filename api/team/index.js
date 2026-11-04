@@ -1,4 +1,4 @@
-import { route, send, body, sql, currentUser, membership, newJoinCode, normCode, tooBig } from '../_lib.js';
+import { route, send, body, sql, currentUser, membership, newJoinCode, normCode, tooBig, claimInvites, normEmail, validEmail } from '../_lib.js';
 
 const gameRow = (r, me) => ({
   id: r.id, shared: r.shared, data: r.data, version: r.version, updatedAt: r.updated_at,
@@ -15,6 +15,8 @@ async function teamState(user, teamId) {
   const members = await q`select u.email, m.role, u.id = ${user.id} as me from team_members m join users u on u.id = m.user_id
                           where m.team_id = ${id} order by (m.role = 'owner') desc, m.joined_at`;
   const roster = (await q`select value, version from team_roster where team_id = ${id}`)[0] || { value: [], version: 0 };
+  const invites = m.role === 'owner'
+    ? (await q`select email from team_invites where team_id = ${id} order by created_at`).map(r => r.email) : [];
   const games = await q`select g.*, o.email as owner_email, ub.email as updated_by_email from team_games g
                         left join users o on o.id = g.owner_id left join users ub on ub.id = g.updated_by
                         where g.team_id = ${id} and (g.shared or g.owner_id = ${user.id})
@@ -22,7 +24,7 @@ async function teamState(user, teamId) {
   return {
     teams: teams.map(t => ({ id: String(t.id), name: t.name, role: t.role })),
     team: { id: String(id), name: m.name, role: m.role, joinCode: m.role === 'owner' ? m.join_code : null },
-    members, roster, games: games.map(r => gameRow(r, user.id))
+    members, invites, roster, games: games.map(r => gameRow(r, user.id))
   };
 }
 
@@ -30,6 +32,7 @@ export default route(['GET', 'POST'], async (req, res) => {
   const user = await currentUser(req);
   if (!user) return send(res, 401, { error: 'Sign in first.' });
   const q = sql();
+  await claimInvites(user.id, user.email);
   if (req.method === 'GET') return send(res, 200, await teamState(user, req.query?.teamId || new URL(req.url, 'http://x').searchParams.get('teamId')));
 
   const b = body(req);
@@ -78,6 +81,23 @@ export default route(['GET', 'POST'], async (req, res) => {
       const email = String(b.email || '').trim().toLowerCase();
       await q`delete from team_members where team_id = ${m.team_id} and role <> 'owner'
               and user_id = (select id from users where email = ${email})`;
+      return send(res, 200, await teamState(user, m.team_id));
+    }
+    case 'invite': {
+      const m = await membership(user.id, b.teamId);
+      if (!m || m.role !== 'owner') return send(res, 403, { error: 'Only the head coach can add coaches.' });
+      const email = normEmail(b.email);
+      if (!validEmail(email)) return send(res, 400, { error: 'Enter a valid email address.' });
+      const existing = (await q`select id from users where email = ${email}`)[0];
+      if (existing) await q`insert into team_members (team_id, user_id, role) values (${m.team_id}, ${existing.id}, 'coach') on conflict do nothing`;
+      else await q`insert into team_invites (team_id, email, invited_by) values (${m.team_id}, ${email}, ${user.id}) on conflict do nothing`;
+      const st = await teamState(user, m.team_id);
+      return send(res, 200, { ...st, added: existing ? 'member' : 'invited' });
+    }
+    case 'uninvite': {
+      const m = await membership(user.id, b.teamId);
+      if (!m || m.role !== 'owner') return send(res, 403, { error: 'Only the head coach can change invites.' });
+      await q`delete from team_invites where team_id = ${m.team_id} and email = ${normEmail(b.email)}`;
       return send(res, 200, await teamState(user, m.team_id));
     }
     case 'newcode': {

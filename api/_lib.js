@@ -77,6 +77,12 @@ export function ensureSchema() {
         updated_by bigint references users(id) on delete set null,
         updated_at timestamptz not null default now(),
         primary key (team_id, id))`;
+      await q`create table if not exists team_invites (
+        team_id bigint not null references teams(id) on delete cascade,
+        email text not null,
+        invited_by bigint references users(id) on delete set null,
+        created_at timestamptz not null default now(),
+        primary key (team_id, email))`;
     })().catch(e => { _schema = null; throw e; });
   }
   return _schema;
@@ -178,3 +184,12 @@ export function newJoinCode() {
 }
 export const normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
 export const tooBig = v => Buffer.byteLength(JSON.stringify(v)) > MAX_VALUE_BYTES;
+
+// Adds the coach to any team that invited their email, then clears those invites.
+export async function claimInvites(userId, email) {
+  const q = sql();
+  await q`insert into team_members (team_id, user_id, role)
+          select team_id, ${userId}, 'coach' from team_invites where email = ${email}
+          on conflict do nothing`;
+  await q`delete from team_invites where email = ${email}`;
+}
