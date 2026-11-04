@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="Softball coaching board: drag players, build animated plays, set inning-by-inning lineups.">
+<meta name="fw-hosted" content="1">
+<meta name="robots" content="noindex">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 body{margin:0}
@@ -380,6 +382,16 @@ body.view-lineups.present .luhint{display:none}
 .tm-r{font-size:12px;color:var(--muted)}
 .team-box>.btn{align-self:flex-start}
 .acct-card{max-height:100%}
+/* ---------- sign-in gate ---------- */
+body.gated>*:not(.gate):not(.toast){display:none!important}
+.gate{min-height:calc(100dvh - 60px);display:flex;align-items:center;justify-content:center;padding-block:24px}
+.gate-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 18px 40px rgba(0,0,0,.08)}
+.gate-mark{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:700;font-size:30px;letter-spacing:.02em;text-transform:uppercase;line-height:1}
+.gate-mark svg{width:34px;height:34px}
+.gate-sub{margin:0;color:var(--muted);font-size:14px}
+.gate-title{font-family:var(--f-display);font-weight:700;font-size:22px;text-transform:uppercase;margin:6px 0 0;letter-spacing:.02em}
+.gate-wait{margin:0;color:var(--muted);font-size:14px}
+body.gated{background:repeating-linear-gradient(135deg,var(--bg) 0 40px,var(--surface-2) 40px 80px)}
 /* ---------- account ---------- */
 .acct{order:9;margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:36px;padding:0 14px 0 11px;display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;white-space:nowrap}
 .acct i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
@@ -439,7 +451,7 @@ body.present .capnote{font-size:17px}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
 </head>
-<body>
+<body class="gated">
 
 
 <header class="top">
@@ -751,6 +763,32 @@ body.present .capnote{font-size:17px}
         <button type="button" class="btn primary" id="acctClose2">Done</button>
       </div>
     </div>
+  </div>
+</div>
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="gate-mark">
+      <svg viewBox="0 0 30 30" aria-hidden="true"><rect x="7" y="7" width="16" height="16" rx="2" transform="rotate(45 15 15)" fill="var(--accent)"/><rect x="12" y="12" width="6" height="6" transform="rotate(45 15 15)" fill="var(--surface)"/></svg>
+      <span>Fieldwise</span>
+    </div>
+    <p class="gate-sub">Softball coaching board for your team's coaches.</p>
+    <p class="gate-wait" id="gateWait">Checking sign-in…</p>
+    <form id="gateForm" class="acct-form" novalidate hidden>
+      <h1 class="gate-title" id="gateTitle">Sign in</h1>
+      <label class="fld">Email
+        <input id="gEmail" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false">
+      </label>
+      <label class="fld">Password
+        <input id="gPw" type="password" autocomplete="current-password">
+      </label>
+      <label class="fld" id="gCodeWrap" hidden>Team code
+        <input id="gCode" autocomplete="off" autocapitalize="off">
+      </label>
+      <p class="help" id="gHint" hidden>Use at least 8 characters. If your head coach added your email, you'll join the team as soon as you sign up.</p>
+      <p class="ferr" id="gErr" hidden></p>
+      <button type="submit" class="btn primary" id="gSubmit">Sign in</button>
+      <button type="button" class="btn" id="gSwitch">Create an account</button>
+    </form>
   </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
@@ -1067,7 +1105,7 @@ $('importBtn').onclick=()=>{
 
 // ---------- team ----------
 const TKEY='fieldwise.team.v1';
-const SEED=['Emerson','Kayton','Maylee','Avery','LeahMarie','Morgan','Makiya','Reagan','London','Rilyn','Sophia'];
+const SEED=[];
 const FPOS=['P','C','1B','2B','3B','SS','LF','CF','RF'],RPOS=['R1','R2','R3','B'];
 const POSNAME={P:'Pitcher',C:'Catcher','1B':'First base','2B':'Second base','3B':'Third base',SS:'Shortstop',LF:'Left field',CF:'Center field',RF:'Right field',R1:'Runner on 1st',R2:'Runner on 2nd',R3:'Runner on 3rd',B:'Batter'};
 const newId=pre=>pre+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -1099,7 +1137,7 @@ function migrateTeam(t){
 function loadTeam(){
   try{const t=JSON.parse(localStorage.getItem(TKEY)||'null');if(t&&Array.isArray(t.roster))return migrateTeam(t)}catch(e){}
   const roster=SEED.map((n,i)=>({id:'p'+i,name:n}));const lineup={};
-  FPOS.forEach((p,i)=>lineup[p]=roster[i].id);
+  FPOS.forEach((p,i)=>lineup[p]=roster[i]?roster[i].id:'');
   return migrateTeam({roster,lineup,showNames:false});
 }
 let team=loadTeam();
@@ -1793,6 +1831,47 @@ function renderTeamBox(){
 }
 function selectCode(){const el=$('teamCodeVal');if(!el)return;const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Copy it from here.')}
 
+// ---------- sign-in gate (hosted site only) ----------
+const HOSTED=!!document.querySelector('meta[name="fw-hosted"]');
+const LKEY='fieldwise.lastUser';
+const remember=e=>{try{localStorage.setItem(LKEY,e)}catch(x){}};
+const recall=()=>{try{return localStorage.getItem(LKEY)}catch(x){return null}};
+let gateMode='in';
+function setGate(on){
+  document.body.classList.toggle('gated',on);$('gate').hidden=!on;
+  if(on){$('gateWait').hidden=true;$('gateForm').hidden=false;renderGate();setTimeout(()=>{try{$('gEmail').focus()}catch(e){}},30)}
+  else requestAnimationFrame(sizePieces);
+}
+function renderGate(){
+  const up=gateMode==='up';
+  $('gateTitle').textContent=up?'Create your account':'Sign in';
+  $('gSubmit').textContent=up?'Create account':'Sign in';
+  $('gSwitch').textContent=up?'I already have an account':'Create an account';
+  $('gCodeWrap').hidden=!(up&&SYNC.codeRequired);$('gHint').hidden=!up;
+  $('gPw').autocomplete=up?'new-password':'current-password';
+}
+function gateError(msg){const e=$('gErr');e.textContent=msg;e.hidden=!msg}
+$('gSwitch').onclick=()=>{gateMode=gateMode==='up'?'in':'up';gateError('');renderGate()};
+$('gateForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const up=gateMode==='up',btn=$('gSubmit');
+  const email=$('gEmail').value.trim(),password=$('gPw').value,code=$('gCode').value.trim();
+  if(!email||!password){gateError('Enter your email and password.');return}
+  btn.disabled=true;btn.textContent=up?'Creating…':'Signing in…';gateError('');
+  try{
+    const r=await api(up?'/api/auth/signup':'/api/auth/login',{method:'POST',body:{email,password,code}});
+    const prev=recall();
+    // A different coach on this device: start from a clean copy of their own data.
+    if(prev&&prev!==r.user.email){clearLocal();remember(r.user.email);location.reload();return}
+    SYNC.user=r.user;SYNC.available=true;$('acctBtn').hidden=false;$('gPw').value='';remember(r.user.email);
+    setGate(false);setSyncState('saving');
+    await pullAll(true);
+    toast(up?'Welcome! Your account is ready.':'Signed in as '+r.user.email);
+  }catch(x){gateError(x.msg||'Couldn’t reach the server. Check your connection and try again.')}
+  finally{btn.disabled=false;renderGate()}
+});
+// Signing out clears this device's copy so the next coach starts clean. Everything is in the database.
+function clearLocal(){[KEY,TKEY,DKEY,PKEY,LKEY].forEach(k=>{try{localStorage.removeItem(k)}catch(e){}})}
 // ---------- account + cloud sync (Neon database through /api) ----------
 const SYNC_KEYS={
   plays:{get:()=>mine,set:v=>{if(Array.isArray(v)){mine=v;try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}}},
@@ -1898,18 +1977,25 @@ $('acctIn').addEventListener('submit',async e=>{
 });
 $('acctSignOut').onclick=async()=>{
   if(SYNC.pending.size)await flushSync();
+  if(SYNC.pending.size){toast('Some changes haven\u2019t saved yet. Get a connection, wait for Synced, then sign out.');return}
   try{await api('/api/auth/logout',{method:'POST'})}catch(e){}
-  SYNC.user=null;SYNC.pending.clear();TEAMCTX=null;renderTeam();setSyncState('local');closeAcct();
-  toast('Signed out. This device keeps a copy of your data.');
+  SYNC.user=null;SYNC.pending.clear();TEAMCTX=null;closeAcct();
+  if(HOSTED){clearLocal();location.reload();return}
+  renderTeam();setSyncState('local');toast('Signed out.');
 };
-// Sync only exists where the API is deployed (your Vercel site), not in previews.
+// On the hosted site nothing shows until a coach signs in. Previews skip the gate.
 (async()=>{
   try{
     const r=await api('/api/me');
     SYNC.available=true;SYNC.codeRequired=!!r.signupCodeRequired;$('acctBtn').hidden=false;
-    if(r.user){SYNC.user=r.user;setSyncState('saving');await pullAll(false)}else setSyncState('local');
+    if(r.user){SYNC.user=r.user;remember(r.user.email);if(HOSTED)setGate(false);setSyncState('saving');await pullAll(false)}
+    else{setSyncState('local');if(HOSTED)setGate(true)}
   }catch(e){
-    if(e.status===503){SYNC.available=true;$('acctBtn').hidden=false;$('acctBtn').dataset.state='error';$('acctLbl').textContent='No database';$('acctBtn').title='The database isn’t connected yet'}
+    if(!HOSTED){if(e.status===503){SYNC.available=true;$('acctBtn').hidden=false;$('acctBtn').dataset.state='error';$('acctLbl').textContent='No database'}return}
+    if(e.status===503){setGate(true);gateError('The team database isn\u2019t connected right now. Try again in a few minutes.');return}
+    // Offline at the field: let the coach who last signed in on this device keep working.
+    if(recall()){setGate(false);$('acctBtn').hidden=false;SYNC.available=true;setSyncState('error');$('acctLbl').textContent='Offline';toast('You\u2019re offline. Changes stay on this device until you reconnect.')}
+    else{setGate(true);gateError('You\u2019re offline. Connect to the internet to sign in.')}
   }
 })();
 
