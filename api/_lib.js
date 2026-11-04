@@ -7,11 +7,21 @@ const MAX_VALUE_BYTES = 2_000_000;
 const SESSION_DAYS = 60;
 const COOKIE = 'fw_session';
 
+// Vercel's Neon integration may add a custom prefix (e.g. STORAGE_DATABASE_URL), so look for any of them.
+function databaseUrl() {
+  const env = process.env;
+  const direct = env.DATABASE_URL || env.POSTGRES_URL;
+  if (direct) return direct;
+  const key = Object.keys(env).find(k => /(^|_)DATABASE_URL$/.test(k) && env[k])
+           || Object.keys(env).find(k => /(^|_)POSTGRES_URL$/.test(k) && env[k]);
+  return key ? env[key] : null;
+}
+
 let _sql = null;
 export function sql() {
   if (globalThis.__FW_TEST_SQL) return globalThis.__FW_TEST_SQL;
   if (!_sql) {
-    const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+    const url = databaseUrl();
     if (!url) throw Object.assign(new Error('DATABASE_URL is not set'), { code: 'NO_DB' });
     _sql = neon(url);
   }
