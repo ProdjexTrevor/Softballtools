@@ -25,9 +25,9 @@ img{max-width:100%}
   --bg:#F5F5F3; --surface:#FFFFFF; --surface-2:#EAEAE6; --ink:#0B0B0C; --muted:#5F5F64; --line:#DCDCD8;
   --accent:#6D28D9; --accent-ink:#FFFFFF; --accent-soft:#EDE6FB;
   --ok:#2F8F55; --warn:#C98A12; --danger:#B42318;
-  --grass:#2B2B2F; --grass-2:#26262A; --grass-foul:#1C1C1F; --clay:#46464C; --clay-2:#3A3A3F; --chalk:#F5F5F3; --fence:#8A8A8F;
-  --fielder:#F5F5F3; --fielder-ink:#0B0B0C; --runner:#7C3AED; --runner-ink:#FFFFFF; --ball:#FFFFFF; --stitch:#7C3AED;
-  --trail-f:rgba(245,245,243,.8); --trail-r:#A78BFA; --trail-b:#FFFFFF;
+  --grass:#DEDED9; --grass-2:#D7D7D1; --grass-foul:#CDCDC7; --clay:#BEBEB7; --clay-2:#B2B2AB; --chalk:#FFFFFF; --fence:#0B0B0C; --dist:#5F5F64;
+  --fielder:#0B0B0C; --fielder-ink:#F5F5F3; --fielder-stroke:#FFFFFF; --runner:#7C3AED; --runner-ink:#FFFFFF; --ball:#FFFFFF; --stitch:#7C3AED;
+  --trail-f:rgba(11,11,12,.75); --trail-r:#7C3AED; --trail-b:#3A3A3F;
   --f-display:"Big Shoulders Display","Arial Narrow",Arial,sans-serif;
   --f-body:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -37,13 +37,15 @@ img{max-width:100%}
   --bg:#0E0E10; --surface:#161618; --surface-2:#1F1F22; --ink:#F5F5F3; --muted:#A8A8AC; --line:#2C2C30;
   --accent:#A78BFA; --accent-ink:#0B0B0C; --accent-soft:#2A2238;
   --ok:#4CC07A; --warn:#E5B04A; --danger:#F97066;
-  --grass-foul:#141416; --grass:#222226; --grass-2:#1E1E21;
+  --grass-foul:#141416; --grass:#222226; --grass-2:#1E1E21; --clay:#46464C; --clay-2:#3A3A3F; --chalk:#F5F5F3; --fence:#8A8A8F; --dist:#F5F5F3;
+  --fielder:#F5F5F3; --fielder-ink:#0B0B0C; --fielder-stroke:#0B0B0C; --trail-f:rgba(245,245,243,.8); --trail-r:#A78BFA; --trail-b:#FFFFFF;
   color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0E0E10; --surface:#161618; --surface-2:#1F1F22; --ink:#F5F5F3; --muted:#A8A8AC; --line:#2C2C30;
   --accent:#A78BFA; --accent-ink:#0B0B0C; --accent-soft:#2A2238;
   --ok:#4CC07A; --warn:#E5B04A; --danger:#F97066;
-  --grass-foul:#141416; --grass:#222226; --grass-2:#1E1E21;
+  --grass-foul:#141416; --grass:#222226; --grass-2:#1E1E21; --clay:#46464C; --clay-2:#3A3A3F; --chalk:#F5F5F3; --fence:#8A8A8F; --dist:#F5F5F3;
+  --fielder:#F5F5F3; --fielder-ink:#0B0B0C; --fielder-stroke:#0B0B0C; --trail-f:rgba(245,245,243,.8); --trail-r:#A78BFA; --trail-b:#FFFFFF;
   color-scheme:dark }
 
 html,body{background:var(--bg);color:var(--ink)}
@@ -175,10 +177,10 @@ textarea:focus{outline:none;border-color:var(--accent);background:var(--surface)
 .f-fence{fill:none;stroke:var(--fence);stroke-width:7}
 .f-line{stroke:var(--chalk);stroke-width:3;fill:none}
 .f-base{fill:var(--chalk)} .f-safe{fill:#8A8A8F}
-.f-dist{fill:var(--chalk);font-family:var(--f-display);font-weight:700;font-size:22px;opacity:.75;text-anchor:middle}
+.f-dist{fill:var(--dist);font-family:var(--f-display);font-weight:700;font-size:22px;opacity:.75;text-anchor:middle}
 .pc{cursor:grab;touch-action:none}
 .pc:active{cursor:grabbing}
-.pc-f .body{fill:var(--fielder);stroke:#0B0B0C;stroke-width:2}
+.pc-f .body{fill:var(--fielder);stroke:var(--fielder-stroke);stroke-width:2}
 .pc-f text{fill:var(--fielder-ink)}
 .pc-r .body{fill:var(--runner);stroke:#F5F5F3;stroke-width:2}
 .pc-r text{fill:var(--runner-ink)}
@@ -453,10 +455,16 @@ body.present .capnote{font-size:17px}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 
 /* ---------- Grind style layer ---------- */
+.themebtn{order:8;margin-left:auto;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;min-height:36px;padding:0 12px 0 10px;display:inline-flex;align-items:center;gap:6px;font-family:var(--f-mono);font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.02em}
+.themebtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.themebtn:hover{border-color:var(--ink)}
+.themebtn+.acct{margin-left:0}
+@media (max-width:600px){.themebtn{order:2;margin-left:auto}.themebtn .tl2{display:none}}
 body{-webkit-font-smoothing:antialiased}
 .mark,.dbar h2,.tm-name,.gate-mark,.gate-title,.sheet-head h2,.dempty h3,#playName,.ptitle{font-weight:900;text-transform:uppercase;letter-spacing:.01em}
 .mark{font-size:30px}.dbar h2{font-size:40px;line-height:.9}.gate-mark{font-size:36px}.gate-title{font-size:28px}.sheet-head h2{font-size:28px}
-#playName{font-size:26px;line-height:1}
+#playName{font-size:24px;line-height:1;text-overflow:ellipsis}
+@media (max-width:1400px){#playName{font-size:21px}}
 .label,.subl,.stepno,.count,.tag .n{font-family:var(--f-mono);font-weight:600;letter-spacing:.04em}
 .label{font-size:11px;color:var(--muted)}
 .subl{font-size:11px;text-transform:uppercase}
@@ -501,6 +509,7 @@ body.gated{background:var(--bg)}
 </head>
 <body class="gated">
 
+<script>try{var t=localStorage.getItem("fieldwise.theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
 
 <header class="top">
   <div class="mark">
@@ -512,6 +521,7 @@ body.gated{background:var(--bg)}
     <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
     <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
   </nav>
+  <button type="button" class="themebtn" id="themeBtn" aria-label="Theme: Auto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><span id="themeLbl">Auto</span></button>
   <button type="button" class="acct" id="acctBtn" hidden data-state="local"><i></i><span id="acctLbl">Sign in</span></button>
   <div class="namewrap">
     <input id="playName" aria-label="Play name" value="">
@@ -2046,6 +2056,21 @@ $('acctSignOut').onclick=async()=>{
     else{setGate(true);gateError('You\u2019re offline. Connect to the internet to sign in.')}
   }
 })();
+
+// ---------- theme: auto / light / dark ----------
+const THKEY='fieldwise.theme',THEMES=['auto','light','dark'];
+const THICON={auto:'<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17" /><path d="M12 3.5a8.5 8.5 0 010 17z" fill="currentColor" stroke="none"/>',
+  light:'<circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/>',
+  dark:'<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>'};
+function getTheme(){try{const t=localStorage.getItem(THKEY);return THEMES.includes(t)?t:'auto'}catch(e){return 'auto'}}
+function applyTheme(t){
+  if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t);
+  const label=t[0].toUpperCase()+t.slice(1);
+  $('themeLbl').textContent=label;$('themeBtn').setAttribute('aria-label','Theme: '+label+'. Tap to change.');
+  $('themeBtn').querySelector('svg').innerHTML=THICON[t];
+}
+$('themeBtn').onclick=()=>{const t=THEMES[(THEMES.indexOf(getTheme())+1)%3];try{localStorage.setItem(THKEY,t)}catch(e){}applyTheme(t);toast(t==='auto'?'Theme follows your device':t==='light'?'Light theme':'Dark theme')};
+applyTheme(getTheme());
 
 // keyboard
 document.addEventListener('keydown',e=>{
