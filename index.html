@@ -365,6 +365,16 @@ body.view-lineups .pc.pick .body{stroke:var(--runner);stroke-width:5px!important
 @media (min-width:1180px){body.view-lineups .app{grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"stage team";grid-template-rows:auto}}
 @media (pointer:fine){body.view-lineups .luhint{display:none}}
 body.view-lineups.present .luhint{display:none}
+/* ---------- account ---------- */
+.acct{order:9;margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:36px;padding:0 14px 0 11px;display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;white-space:nowrap}
+.acct i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.acct[data-state="synced"] i{background:var(--grass)}
+.acct[data-state="saving"] i{background:var(--runner)}
+.acct[data-state="error"] i{background:var(--accent)}
+.acct-card{max-width:420px}
+.acct-form{display:flex;flex-direction:column;gap:12px}
+.acct-email{color:var(--ink);font-size:16px;font-weight:600;word-break:break-all}
+@media (max-width:600px){.acct{order:2}.views{order:3}}
 /* present mode: field fills the screen for the dugout, circle visits or a projector */
 body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
 body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .team,body.present .share{display:none!important}
@@ -401,6 +411,7 @@ body.present .capnote{font-size:17px}
     <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
     <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
   </nav>
+  <button type="button" class="acct" id="acctBtn" hidden data-state="local"><i></i><span id="acctLbl">Sign in</span></button>
   <div class="namewrap">
     <input id="playName" aria-label="Play name" value="">
     <span class="dirty" id="dirty" hidden>Unsaved</span>
@@ -658,6 +669,37 @@ body.present .capnote{font-size:17px}
     </div>
   </form>
 </div>
+<div class="sheet" id="acctSheet" hidden>
+  <div class="sheet-card acct-card" role="dialog" aria-modal="true" aria-labelledby="acctTitle">
+    <div class="sheet-head">
+      <h2 id="acctTitle">Sign in</h2>
+      <button type="button" class="del" id="acctClose" aria-label="Close">Close</button>
+    </div>
+    <form id="acctIn" class="acct-form" novalidate>
+      <p class="help" style="margin:0">Sign in to save your plays, team, lineups and drills to the cloud and use them on any device.</p>
+      <label class="fld">Email
+        <input id="acctEmailIn" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false">
+      </label>
+      <label class="fld">Password
+        <input id="acctPw" type="password" autocomplete="current-password" minlength="8">
+      </label>
+      <label class="fld" id="acctCodeWrap" hidden>Team code
+        <input id="acctCode" autocomplete="off" autocapitalize="off">
+      </label>
+      <p class="ferr" id="acctErr" hidden></p>
+      <button type="submit" class="btn primary" id="acctSubmit">Sign in</button>
+      <button type="button" class="btn" id="acctSwitch">Create an account</button>
+    </form>
+    <div id="acctOut" class="acct-form" hidden>
+      <div class="fld">Signed in as <span id="acctEmail" class="acct-email"></span></div>
+      <p class="help" id="acctStatus" style="margin:0"></p>
+      <div class="row">
+        <button type="button" class="btn" id="acctSignOut">Sign out</button>
+        <button type="button" class="btn primary" id="acctClose2">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -718,9 +760,9 @@ const LIB=[
 
 const KEY='fieldwise.plays.v1';
 function loadMine(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
-function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}
+function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}queueSync('plays')}
 
-let practicing=false, view='board', luSaved=null;
+let practicing=false, view='board', luSaved=null, SYNC=null;
 let mine=loadMine(), play=null, cur=0, playing=false, speed=1, tab='lib', dirty=false, raf=0, timer=0, confirmId=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -994,7 +1036,7 @@ function loadTeam(){
   return migrateTeam({roster,lineup,showNames:false});
 }
 let team=loadTeam();
-function storeTeam(){try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}}
+function storeTeam(){try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}queueSync('team')}
 const playerById=id=>id&&team.roster.find(r=>r.id===id);
 function game(){return team.games.find(g=>g.id===team.activeGame)||team.games[0]}
 function curLine(){const g=game();team.inning=Math.max(0,Math.min(team.inning,g.innings.length-1));return g.innings[team.inning]}
@@ -1206,7 +1248,7 @@ function practiceBoard(){
       return{name:'Practice',show:Array.isArray(v.show)?v.show:['B','ball'],frames:[{pos,note:''}]}}}catch(e){}
   return{name:'Practice',show:['B','ball'],frames:[{pos:clone(DEF),note:''}]};
 }
-function storePractice(){try{localStorage.setItem(PKEY,JSON.stringify({pos:play.frames[0].pos,show:play.show}))}catch(e){}}
+function storePractice(){try{localStorage.setItem(PKEY,JSON.stringify({pos:play.frames[0].pos,show:play.show}))}catch(e){}queueSync('practice')}
 function setTabLabels(){const t=document.querySelector('.mtabs [data-m="edit"]');if(t)t.textContent=practicing?'Practice':'Step'}
 function enterPractice(){
   if(practicing)return;stop();
@@ -1274,7 +1316,7 @@ const TAG_GROUPS=[
 ];
 const PRESET=new Set(TAG_GROUPS.flatMap(g=>g[1]));
 let drills=(()=>{try{const v=JSON.parse(localStorage.getItem(DKEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}})();
-function storeDrills(){try{localStorage.setItem(DKEY,JSON.stringify(drills))}catch(e){}}
+function storeDrills(){try{localStorage.setItem(DKEY,JSON.stringify(drills))}catch(e){}queueSync('drills')}
 const dState={q:'',tags:new Set(),sort:'new',editing:null,formTags:new Set(),extraTags:new Set(),confirm:null};
 
 function customTags(){const s=new Set();drills.forEach(d=>d.tags.forEach(t=>{if(!PRESET.has(t))s.add(t)}));dState.extraTags.forEach(t=>s.add(t));return[...s].sort((a,b)=>a.localeCompare(b))}
@@ -1455,8 +1497,125 @@ function setView(v){
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 if(matchMedia('(min-width:900px)').matches)$('dTagsBox').open=true;
 
+// ---------- account + cloud sync (Neon database through /api) ----------
+const SYNC_KEYS={
+  plays:{get:()=>mine,set:v=>{if(Array.isArray(v)){mine=v;try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}}},
+  team:{get:()=>team,set:v=>{if(v&&Array.isArray(v.roster)){team=migrateTeam(v);try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}}}},
+  drills:{get:()=>drills,set:v=>{if(Array.isArray(v)){drills=v;try{localStorage.setItem(DKEY,JSON.stringify(drills))}catch(e){}}}},
+  practice:{get:()=>{try{return JSON.parse(localStorage.getItem(PKEY)||'null')}catch(e){return null}},set:v=>{if(v&&v.pos){try{localStorage.setItem(PKEY,JSON.stringify(v))}catch(e){}}}}
+};
+SYNC={available:false,user:null,codeRequired:false,pending:new Set(),timer:0,busy:false,state:'local',mode:'in'};
+async function api(path,opts={}){
+  const r=await fetch(path,{credentials:'same-origin',headers:{'Content-Type':'application/json'},...opts,body:opts.body?JSON.stringify(opts.body):undefined});
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!j)throw Object.assign(new Error('no-api'),{status:r.status});
+  if(!r.ok)throw Object.assign(new Error(j.error||'Request failed'),{status:r.status,msg:j.error});
+  return j;
+}
+function setSyncState(s){
+  SYNC.state=s;
+  const btn=$('acctBtn'),lbl=$('acctLbl');if(!btn)return;
+  btn.dataset.state=s;
+  lbl.textContent=!SYNC.user?'Sign in':s==='saving'?'Saving…':s==='error'?'Not synced':'Synced';
+  btn.title=SYNC.user?SYNC.user.email:'Sign in to save to the cloud';
+  renderAcctSheet();
+}
+function queueSync(key){
+  if(!SYNC||!SYNC.user)return;
+  SYNC.pending.add(key);setSyncState('saving');
+  clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flushSync,700);
+}
+async function flushSync(){
+  if(!SYNC.user||SYNC.busy||!SYNC.pending.size)return;
+  SYNC.busy=true;
+  const keys=[...SYNC.pending];SYNC.pending.clear();
+  try{
+    for(const k of keys){const v=SYNC_KEYS[k].get();if(v!=null)await api('/api/data',{method:'PUT',body:{key:k,value:v}})}
+    SYNC.busy=false;setSyncState(SYNC.pending.size?'saving':'synced');
+    if(SYNC.pending.size)flushSync();
+  }catch(e){
+    keys.forEach(k=>SYNC.pending.add(k));SYNC.busy=false;
+    if(e.status===401){SYNC.user=null;setSyncState('local');toast('You were signed out. Sign in again to keep syncing.');return}
+    setSyncState('error');clearTimeout(SYNC.timer);SYNC.timer=setTimeout(flushSync,15000);
+  }
+}
+addEventListener('online',()=>{if(SYNC.pending.size)flushSync()});
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'&&SYNC.pending.size)flushSync()});
+
+function refreshAll(){
+  renderLibrary();renderTeam();applyNames();
+  if(view==='drills')renderDrills();
+  if(play&&play.mineId){const p=mine.find(x=>x.mineId===play.mineId);if(p&&!dirty)loadPlay(p)}
+}
+// Pull the coach's saved data. Anything the cloud doesn't have yet is uploaded from this device.
+async function pullAll(firstTime){
+  const r=await api('/api/data');
+  let uploaded=0;
+  for(const k of Object.keys(SYNC_KEYS)){
+    if(r.data[k]!==undefined)SYNC_KEYS[k].set(r.data[k]);
+    else{const v=SYNC_KEYS[k].get();if(v!=null&&!(Array.isArray(v)&&!v.length)){SYNC.pending.add(k);uploaded++}}
+  }
+  refreshAll();
+  if(uploaded){setSyncState('saving');await flushSync()}else setSyncState('synced');
+  if(firstTime&&uploaded)toast('Saved this device’s plays, team and drills to your account');
+}
+
+function renderAcctSheet(){
+  const s=$('acctSheet');if(!s||s.hidden)return;
+  const signedIn=!!SYNC.user;
+  $('acctIn').hidden=signedIn;$('acctOut').hidden=!signedIn;
+  if(signedIn){
+    $('acctEmail').textContent=SYNC.user.email;
+    $('acctStatus').textContent=SYNC.state==='saving'?'Saving your changes…':SYNC.state==='error'?'Couldn’t reach the server. Changes are kept on this device and will sync when you’re back online.':'Everything is saved to your account. Sign in on any phone, tablet or computer to see the same plays, lineups and drills.';
+  }else{
+    const up=SYNC.mode==='up';
+    $('acctTitle').textContent=up?'Create your account':'Sign in';
+    $('acctSubmit').textContent=up?'Create account':'Sign in';
+    $('acctSwitch').textContent=up?'I already have an account':'Create an account';
+    $('acctCodeWrap').hidden=!(up&&SYNC.codeRequired);
+    $('acctPw').autocomplete=up?'new-password':'current-password';
+  }
+}
+function openAcct(){$('acctSheet').hidden=false;document.body.classList.add('locked');$('acctErr').hidden=true;renderAcctSheet();
+  setTimeout(()=>{try{(SYNC.user?$('acctClose'):$('acctEmailIn')).focus()}catch(e){}},30)}
+function closeAcct(){$('acctSheet').hidden=true;document.body.classList.remove('locked');try{$('acctBtn').focus()}catch(e){}}
+$('acctBtn').onclick=openAcct;$('acctClose').onclick=closeAcct;$('acctClose2').onclick=closeAcct;
+$('acctSheet').addEventListener('click',e=>{if(e.target===$('acctSheet'))closeAcct()});
+$('acctSwitch').onclick=()=>{SYNC.mode=SYNC.mode==='up'?'in':'up';$('acctErr').hidden=true;renderAcctSheet()};
+$('acctIn').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const up=SYNC.mode==='up',err=$('acctErr'),btn=$('acctSubmit');
+  const email=$('acctEmailIn').value.trim(),password=$('acctPw').value,code=$('acctCode').value.trim();
+  if(!email||!password){err.textContent='Enter your email and password.';err.hidden=false;return}
+  btn.disabled=true;btn.textContent=up?'Creating…':'Signing in…';
+  try{
+    const r=await api(up?'/api/auth/signup':'/api/auth/login',{method:'POST',body:{email,password,code}});
+    SYNC.user=r.user;$('acctPw').value='';
+    await pullAll(true);
+    closeAcct();toast(up?'Account created. Your data now syncs.':'Signed in as '+r.user.email);
+  }catch(x){err.textContent=x.msg||'Couldn’t reach the server. Check your connection and try again.';err.hidden=false}
+  finally{btn.disabled=false;renderAcctSheet()}
+});
+$('acctSignOut').onclick=async()=>{
+  if(SYNC.pending.size)await flushSync();
+  try{await api('/api/auth/logout',{method:'POST'})}catch(e){}
+  SYNC.user=null;SYNC.pending.clear();setSyncState('local');closeAcct();
+  toast('Signed out. This device keeps a copy of your data.');
+};
+// Sync only exists where the API is deployed (your Vercel site), not in previews.
+(async()=>{
+  try{
+    const r=await api('/api/me');
+    SYNC.available=true;SYNC.codeRequired=!!r.signupCodeRequired;$('acctBtn').hidden=false;
+    if(r.user){SYNC.user=r.user;setSyncState('saving');await pullAll(false)}else setSyncState('local');
+  }catch(e){
+    if(e.status===503){SYNC.available=true;$('acctBtn').hidden=false;$('acctBtn').dataset.state='error';$('acctLbl').textContent='No database';$('acctBtn').title='The database isn’t connected yet'}
+  }
+})();
+
 // keyboard
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('acctSheet').hidden){closeAcct();return}
   if(e.key==='Escape'&&!$('dSheet').hidden){closeSheet();return}
   if(e.key==='Escape'&&presenting){setPresent(false);return}
   if(view!=='board')return;
