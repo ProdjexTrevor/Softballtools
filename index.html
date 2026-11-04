@@ -365,6 +365,21 @@ body.view-lineups .pc.pick .body{stroke:var(--runner);stroke-width:5px!important
 @media (min-width:1180px){body.view-lineups .app{grid-template-columns:minmax(0,1fr) 400px;grid-template-areas:"stage team";grid-template-rows:auto}}
 @media (pointer:fine){body.view-lineups .luhint{display:none}}
 body.view-lineups.present .luhint{display:none}
+/* ---------- team box ---------- */
+.team-box{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+.tm-top{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.tm-name{font-family:var(--f-display);font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.tm-role{font-size:12px;font-weight:600;color:var(--grass)}
+.tm-code{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface-2);border-radius:8px;padding:8px 10px}
+.tm-code .subl{margin:0}
+.tm-codeval{font-family:var(--f-mono);font-size:20px;letter-spacing:.14em;font-weight:500;user-select:all}
+.tm-members{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px}
+.tm-mem{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
+.tm-mem:last-child{border-bottom:0}
+.tm-email{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.tm-r{font-size:12px;color:var(--muted)}
+.team-box>.btn{align-self:flex-start}
+.acct-card{max-height:100%}
 /* ---------- account ---------- */
 .acct{order:9;margin-left:auto;border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:36px;padding:0 14px 0 11px;display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:13px;white-space:nowrap}
 .acct i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
@@ -375,6 +390,30 @@ body.view-lineups.present .luhint{display:none}
 .acct-form{display:flex;flex-direction:column;gap:12px}
 .acct-email{color:var(--ink);font-size:16px;font-weight:600;word-break:break-all}
 @media (max-width:600px){.acct{order:2}.views{order:3}}
+/* ---------- lineup card ---------- */
+.lutabs{margin:2px 0 0}
+.bcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.brow{display:grid;grid-template-columns:26px minmax(0,1fr) 108px 70px;gap:8px;align-items:center;padding:6px 8px 6px 10px;border-bottom:1px solid var(--line);background:var(--surface)}
+.brow:last-child{border-bottom:0}
+.brow.benched{background:var(--surface-2)}
+.brow.benched .bname{color:var(--muted)}
+.bnum{font-family:var(--f-mono);font-size:12px;color:var(--muted);text-align:right}
+.bname{font-weight:600;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bpos{min-height:34px;padding:4px 6px;font-size:14px;font-family:var(--f-mono)}
+.brow:not(.benched) .bpos{background:var(--fielder);color:var(--fielder-ink);border-color:var(--fielder);font-weight:600}
+.bmove{display:flex;gap:4px;justify-content:flex-end}
+.bmove button{width:32px;height:32px;border:1px solid var(--line);background:var(--surface);border-radius:7px;font-size:15px;line-height:1}
+.bmove button:disabled{opacity:.3}
+.inn.own{position:relative}
+.inn.own::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--runner)}
+.innnote{margin:0;min-height:1em}
+.bench .open{color:var(--accent);font-weight:600}
+.gshare{display:flex;flex-direction:column;gap:6px}
+.gshare .btn[aria-pressed="true"]{background:var(--grass);border-color:var(--grass);color:#fff}
+.gshare .help{margin:0}
+.team.ro select:disabled,.team.ro input:disabled{opacity:.75}
+@media (pointer:coarse){.bpos{min-height:40px;font-size:16px}.bmove button{width:38px;height:38px}.brow{grid-template-columns:24px minmax(0,1fr) 104px 80px}}
+@media (max-width:360px){.brow{grid-template-columns:20px minmax(0,1fr) 92px 72px;gap:6px}}
 /* present mode: field fills the screen for the dugout, circle visits or a projector */
 body.present{padding-left:0;padding-right:0;padding-block:0;overflow:hidden}
 body.present .top,body.present .mtabs,body.present .lib,body.present .insp,body.present .team,body.present .share{display:none!important}
@@ -491,7 +530,7 @@ body.present .capnote{font-size:17px}
           <div class="inns" id="luInns" role="group" aria-label="Choose inning"></div>
         </div>
         <p class="lubench" id="luBench"></p>
-        <p class="help luhint">Tap a player on the field to change who plays there.</p>
+        <p class="help luhint" id="luHint">Tap a player on the field to change who plays there.</p>
       </div>
       <div class="controls">
       <div class="caption" aria-live="polite">
@@ -555,6 +594,10 @@ body.present .capnote{font-size:17px}
         <button class="btn small" id="gameDup" type="button">Duplicate</button>
         <span id="gameDelWrap" class="confirm"></span>
       </div>
+      <div class="gshare">
+        <button class="btn small" id="gameShare" type="button" hidden aria-pressed="false">Share with team</button>
+        <p class="help" id="gameOwner" hidden></p>
+      </div>
       <div class="innrow">
         <span class="subl">Innings in this game</span>
         <div class="stepper">
@@ -568,11 +611,17 @@ body.present .capnote{font-size:17px}
     <div class="sec">
       <span class="label" id="innLabel">Inning 1 lineup</span>
       <div class="inns" id="inns" role="group" aria-label="Choose inning"></div>
-      <div class="lineup" id="lineup"></div>
+      <p class="help innnote" id="innNote"></p>
+      <div class="tabs lutabs" role="tablist" aria-label="Lineup view">
+        <button type="button" role="tab" id="luTabOrder" aria-selected="true">Batting order</button>
+        <button type="button" role="tab" id="luTabPos" aria-selected="false">By position</button>
+      </div>
+      <div class="bcard" id="battingCard"></div>
+      <div class="lineup" id="lineup" hidden></div>
       <p class="bench" id="benchLine"></p>
       <div class="row">
-        <button class="btn small" id="copyPrev" type="button">Copy inning before</button>
-        <button class="btn small" id="copyFwd" type="button">Use for later innings</button>
+        <button class="btn small" id="copyPrev" type="button">Follow inning before</button>
+        <button class="btn small" id="copyFwd" type="button">Use for all later innings</button>
       </div>
       <div class="outwrap">
         <div class="subl">Who's out each inning</div>
@@ -584,7 +633,7 @@ body.present .capnote{font-size:17px}
     <div class="sec">
       <span class="label">Rotation chart</span>
       <div class="rot-wrap"><table class="rot" id="rot"></table></div>
-      <p class="help">Tap an inning number to edit that inning. Sits counts innings on the bench.</p>
+      <p class="help">Players in batting order. Tap an inning number to edit that inning. Sits counts innings on the bench.</p>
     </div>
     <div class="sec runners-sec">
       <span class="label">Base runners</span>
@@ -693,6 +742,7 @@ body.present .capnote{font-size:17px}
     <div id="acctOut" class="acct-form" hidden>
       <div class="fld">Signed in as <span id="acctEmail" class="acct-email"></span></div>
       <p class="help" id="acctStatus" style="margin:0"></p>
+      <div class="team-box" id="teamBox"></div>
       <div class="row">
         <button type="button" class="btn" id="acctSignOut">Sign out</button>
         <button type="button" class="btn primary" id="acctClose2">Done</button>
@@ -762,7 +812,7 @@ const KEY='fieldwise.plays.v1';
 function loadMine(){try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}}
 function storeMine(){try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}queueSync('plays')}
 
-let practicing=false, view='board', luSaved=null, SYNC=null;
+let practicing=false, view='board', luSaved=null, SYNC=null, TEAMCTX=null;
 let mine=loadMine(), play=null, cur=0, playing=false, speed=1, tab='lib', dirty=false, raf=0, timer=0, confirmId=null;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $=id=>document.getElementById(id);
@@ -1018,13 +1068,27 @@ const SEED=['Emerson','Kayton','Maylee','Avery','LeahMarie','Morgan','Makiya','R
 const FPOS=['P','C','1B','2B','3B','SS','LF','CF','RF'],RPOS=['R1','R2','R3','B'];
 const POSNAME={P:'Pitcher',C:'Catcher','1B':'First base','2B':'Second base','3B':'Third base',SS:'Shortstop',LF:'Left field',CF:'Center field',RF:'Right field',R1:'Runner on 1st',R2:'Runner on 2nd',R3:'Runner on 3rd',B:'Batter'};
 const newId=pre=>pre+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const blankLine=()=>{const o={};FPOS.forEach(k=>o[k]='');return o};
+// Every game: innings (position -> player), which innings have their own changes, and a batting order.
+function shapeGame(g){
+  if(!Array.isArray(g.innings)||!g.innings.length)g.innings=[blankLine()];
+  g.innings=g.innings.map(l=>{const o={};FPOS.forEach(k=>o[k]=(l&&l[k])||'');return o});
+  if(!Array.isArray(g.edited)||g.edited.length!==g.innings.length)
+    g.edited=g.innings.map((l,i)=>i>0&&JSON.stringify(l)!==JSON.stringify(g.innings[i-1]));
+  g.edited[0]=false;
+  if(!Array.isArray(g.order))g.order=[];
+  if(g.mine===undefined)g.mine=true;
+  if(!g.name)g.name='Untitled game';
+  return g;
+}
 function migrateTeam(t){
   if(!t.runners){t.runners={};RPOS.forEach(p=>t.runners[p]=(t.lineup&&t.lineup[p])||'')}
   if(!Array.isArray(t.games)||!t.games.length){
-    const base={};FPOS.forEach(p=>base[p]=(t.lineup&&t.lineup[p])||'');
+    const base=blankLine();FPOS.forEach(p=>base[p]=(t.lineup&&t.lineup[p])||'');
     t.games=[{id:'g1',name:'Game 1',innings:Array.from({length:6},()=>clone(base))}];
     t.activeGame='g1';t.inning=0;
   }
+  t.games.forEach(shapeGame);
   if(!t.games.some(g=>g.id===t.activeGame))t.activeGame=t.games[0].id;
   t.inning=+t.inning||0;
   return t;
@@ -1036,11 +1100,23 @@ function loadTeam(){
   return migrateTeam({roster,lineup,showNames:false});
 }
 let team=loadTeam();
-function storeTeam(){try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}queueSync('team')}
+function saveTeamLocal(){try{localStorage.setItem(TKEY,JSON.stringify(team))}catch(e){}}
+function storeTeam(){saveTeamLocal();queueSync('team')}
 const playerById=id=>id&&team.roster.find(r=>r.id===id);
 function game(){return team.games.find(g=>g.id===team.activeGame)||team.games[0]}
 function curLine(){const g=game();team.inning=Math.max(0,Math.min(team.inning,g.innings.length-1));return g.innings[team.inning]}
 function nameFor(pos){const p=playerById(FPOS.includes(pos)?curLine()[pos]:team.runners[pos]);return p?p.name.trim():''}
+// On a team, the coach who made a lineup and the head coach can change it; others can view it.
+const canEdit=g=>!TEAMCTX||g.mine||TEAMCTX.role==='owner';
+const editable=()=>canEdit(game());
+function orderFor(g){const seen=new Set(),out=[];
+  (g.order||[]).forEach(id=>{if(playerById(id)&&!seen.has(id)){seen.add(id);out.push(id)}});
+  team.roster.forEach(r=>{if(!seen.has(r.id))out.push(r.id)});return out}
+const posOf=(l,id)=>FPOS.find(k=>l[k]===id)||'';
+
+// Later innings follow the one before until they get their own changes.
+function carryForward(g,i){for(let j=i+1;j<g.innings.length&&!g.edited[j];j++)g.innings[j]=clone(g.innings[i])}
+function commitLine(){const g=game(),i=team.inning;if(i>0)g.edited[i]=true;carryForward(g,i)}
 
 function applyNames(){
   PIECES.forEach(p=>{if(p.k==='b')return;
@@ -1056,40 +1132,103 @@ function applyNames(){
 function setShowNames(v){team.showNames=v;storeTeam();applyNames()}
 
 function assign(pos,id){
-  const isF=FPOS.includes(pos),map=isF?curLine():team.runners,group=isF?FPOS:RPOS,prev=map[pos]||'';
+  const isF=FPOS.includes(pos);
+  if(isF&&!editable()){renderTeam();return}
+  const map=isF?curLine():team.runners,group=isF?FPOS:RPOS,prev=map[pos]||'';
   let msg='';
   if(id){const other=group.find(k=>k!==pos&&map[k]===id);
     if(other){map[other]=prev;const a=playerById(id).name,b=playerById(prev)?playerById(prev).name:'';
       msg=a+' moved to '+pos+(b?', '+b+' to '+other:'')+'.'}}
-  map[pos]=id;storeTeam();renderTeam();
+  map[pos]=id;if(isF)commitLine();storeTeam();renderTeam();
   if(msg)toast(msg);
+}
+// From the batting card: put a player at a position (or the bench) for this inning.
+function setPlayerPos(pid,pos){
+  if(!editable()){renderTeam();return}
+  const l=curLine(),cur=posOf(l,pid);if(cur===pos)return;
+  let msg='';
+  if(!pos){if(cur)l[cur]=''}
+  else{const other=l[pos];l[pos]=pid;
+    if(cur)l[cur]=other||'';
+    if(other&&playerById(other))msg=cur?playerById(other).name+' moved to '+cur+'.':playerById(other).name+' moved to the bench.'}
+  commitLine();storeTeam();renderTeam();if(msg)toast(msg);
+}
+function moveOrder(pid,d){
+  if(!editable())return;
+  const g=game(),o=orderFor(g),i=o.indexOf(pid),j=i+d;if(i<0||j<0||j>=o.length)return;
+  [o[i],o[j]]=[o[j],o[i]];g.order=o;storeTeam();renderTeam();
+  const b=document.querySelector('#battingCard [data-pid="'+pid+'"] .'+(d<0?'up':'dn'));if(b&&!b.disabled)b.focus();
 }
 function lineupRows(container,group,map,isRunner){
   container.innerHTML='';
+  const ro=!isRunner&&!editable();
   group.forEach(pos=>{
     const b=document.createElement('span');b.className='posb'+(isRunner?' r':'');b.textContent=pos;b.title=POSNAME[pos];
-    const s=document.createElement('select');s.id='lu-'+pos;s.setAttribute('aria-label',POSNAME[pos]);
+    const s=document.createElement('select');s.id='lu-'+pos;s.setAttribute('aria-label',POSNAME[pos]);s.disabled=ro;
     s.innerHTML='<option value="">— Not set —</option>';
-    team.roster.forEach(r=>{const o=document.createElement('option');o.value=r.id;o.textContent=r.name||'(no name)';s.appendChild(o)});
+    (isRunner?team.roster.map(r=>r.id):orderFor(game())).forEach(id=>{const r=playerById(id);const o=document.createElement('option');o.value=id;o.textContent=r.name||'(no name)';s.appendChild(o)});
     s.value=playerById(map[pos])?map[pos]:'';
     s.onchange=()=>assign(pos,s.value);
     container.append(b,s);
   });
 }
+let luTab='order';
+function renderCard(){
+  const box=$('battingCard');box.innerHTML='';
+  const g=game(),l=curLine(),o=orderFor(g),ro=!editable();
+  o.forEach((id,i)=>{
+    const r=playerById(id),pos=posOf(l,id);
+    const row=document.createElement('div');row.className='brow'+(pos?'':' benched');row.dataset.pid=id;
+    const n=document.createElement('span');n.className='bnum';n.textContent=i+1;
+    const nm=document.createElement('span');nm.className='bname';nm.textContent=r.name||'(no name)';
+    const s=document.createElement('select');s.className='bpos';s.id='bp-'+id;s.disabled=ro;
+    s.setAttribute('aria-label','Position for '+(r.name||'player')+', inning '+(team.inning+1));
+    s.innerHTML='<option value="">Bench</option>'+FPOS.map(k=>{const who=l[k]&&l[k]!==id&&playerById(l[k]);
+      return '<option value="'+k+'">'+k+(who?' ← '+who.name.replace(/[<&"]/g,''):'')+'</option>'}).join('');
+    s.value=pos;s.onchange=()=>setPlayerPos(id,s.value);
+    const mv=document.createElement('span');mv.className='bmove';
+    if(!ro){
+      const up=document.createElement('button');up.type='button';up.className='up';up.textContent='↑';up.disabled=i===0;up.setAttribute('aria-label','Move '+(r.name||'player')+' up in the batting order');up.onclick=()=>moveOrder(id,-1);
+      const dn=document.createElement('button');dn.type='button';dn.className='dn';dn.textContent='↓';dn.disabled=i===o.length-1;dn.setAttribute('aria-label','Move '+(r.name||'player')+' down in the batting order');dn.onclick=()=>moveOrder(id,1);
+      mv.append(up,dn);
+    }
+    row.append(n,nm,s,mv);box.appendChild(row);
+  });
+  $('luTabOrder').setAttribute('aria-selected',luTab==='order');$('luTabPos').setAttribute('aria-selected',luTab==='pos');
+  box.hidden=luTab!=='order';$('lineup').hidden=luTab!=='pos';
+}
+function setLuTab(t){luTab=t;renderCard()}
 function sitsFor(id){return game().innings.filter(l=>!FPOS.some(k=>l[k]===id)).length}
 
+function gameLabel(g){
+  if(!TEAMCTX)return g.name||'Untitled game';
+  return (g.name||'Untitled game')+(g.mine?(g.shared?' · shared':' · private'):' · '+(g.ownerEmail||'coach').split('@')[0]);
+}
 function renderGames(){
   const sel=$('gameSel');sel.innerHTML='';
-  team.games.forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=g.name||'Untitled game';sel.appendChild(o)});
-  sel.value=game().id;
-  if(document.activeElement!==$('gameName'))$('gameName').value=game().name;
-  $('innCount').textContent=game().innings.length;
-  $('innMinus').disabled=game().innings.length<=1;$('innPlus').disabled=game().innings.length>=9;
+  const add=(list,label)=>{if(!list.length)return;const grp=label?document.createElement('optgroup'):sel;if(label)grp.label=label;
+    list.forEach(g=>{const o=document.createElement('option');o.value=g.id;o.textContent=gameLabel(g);grp.appendChild(o)});if(label)sel.appendChild(grp)};
+  if(TEAMCTX){add(team.games.filter(g=>g.mine),'My lineups');add(team.games.filter(g=>!g.mine),'Shared by other coaches')}
+  else add(team.games,null);
+  const g=game();sel.value=g.id;
+  const ed=canEdit(g);
+  if(document.activeElement!==$('gameName'))$('gameName').value=g.name;
+  $('gameName').disabled=!ed;
+  $('innCount').textContent=g.innings.length;
+  $('innMinus').disabled=!ed||g.innings.length<=1;$('innPlus').disabled=!ed||g.innings.length>=9;
+  // sharing
+  const sh=$('gameShare'),own=$('gameOwner');
+  sh.hidden=!TEAMCTX||!g.mine;
+  sh.textContent=g.shared?'Shared with team ✓':'Share with team';sh.setAttribute('aria-pressed',!!g.shared);
+  own.hidden=!TEAMCTX;
+  if(TEAMCTX)own.textContent=!g.mine
+    ?'Shared by '+(g.ownerEmail||'another coach')+(ed?'. You can edit it as head coach.':'. View only. Duplicate it to make your own version.')
+    :g.shared?'Every coach on '+TEAMCTX.name+' can see this lineup.':'Only you can see this lineup. Share it when it’s ready.';
   renderDelete(false);
 }
 function renderDelete(confirming){
   const w=$('gameDelWrap');w.innerHTML='';
-  if(team.games.length<2)return;
+  if(team.games.length<2||!editable())return;
   if(confirming){
     w.append('Delete this game?');
     const y=document.createElement('button');y.type='button';y.className='btn small';y.textContent='Delete';
@@ -1100,35 +1239,46 @@ function renderDelete(confirming){
     const d=document.createElement('button');d.type='button';d.className='btn small';d.textContent='Delete';d.onclick=()=>renderDelete(true);w.appendChild(d);
   }
 }
-function renderInnings(){
-  const box=$('inns');box.innerHTML='';
-  game().innings.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='inn';b.textContent=i+1;
-    b.setAttribute('aria-label','Inning '+(i+1));if(i===team.inning)b.setAttribute('aria-current','true');
-    b.onclick=()=>setInning(i);box.appendChild(b)});
-  $('innLabel').textContent='Inning '+(team.inning+1)+' lineup';
-  $('copyPrev').disabled=team.inning===0;$('copyFwd').disabled=team.inning>=game().innings.length-1;
+function innButtons(box){
+  const g=game();box.innerHTML='';
+  g.innings.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='inn'+(i>0&&g.edited[i]?' own':'');b.textContent=i+1;
+    b.setAttribute('aria-label','Inning '+(i+1)+(i>0?(g.edited[i]?', has its own changes':', follows inning '+i):''));
+    if(i===team.inning)b.setAttribute('aria-current','true');b.onclick=()=>setInning(i);box.appendChild(b)});
 }
-function renderBench(){
-  const l=curLine(),bench=team.roster.filter(r=>!FPOS.some(k=>l[k]===r.id));
+function renderInnings(){
+  const g=game(),i=team.inning,ed=editable();
+  innButtons($('inns'));
+  $('innLabel').textContent='Inning '+(i+1)+' lineup';
+  const later=g.innings.length-1-i;let follow=0;for(let j=i+1;j<g.innings.length&&!g.edited[j];j++)follow++;
+  $('innNote').textContent=i===0
+    ?(follow?'Changes here carry into inning'+(follow>1?'s 2–'+(follow+1):' 2')+'.':'')
+    :g.edited[i]?'Inning '+(i+1)+' has its own changes.'+(follow?' They carry into inning'+(follow>1?'s '+(i+2)+'–'+(i+1+follow):' '+(i+2))+'.':'')
+    :'Same as inning '+i+'. Change anything here and later innings follow this one.';
+  $('copyPrev').hidden=i===0||!g.edited[i];$('copyPrev').disabled=!ed;
+  $('copyFwd').hidden=later<=follow;$('copyFwd').disabled=!ed;
+}
+function benchText(el){
+  const l=curLine(),bench=orderFor(game()).filter(id=>!posOf(l,id)).map(playerById);
   const open=FPOS.filter(k=>!playerById(l[k]));
-  const el=$('benchLine');el.textContent='';
+  el.textContent='';
   if(bench.length){el.append('On the bench: ');const b=document.createElement('b');b.textContent=bench.map(r=>r.name).join(', ');el.appendChild(b)}
   else el.append('Everyone is in the field this inning.');
-  if(open.length)el.append(' Open spots: '+open.join(', ')+'.');
+  if(open.length){const o=document.createElement('span');o.className='open';o.textContent=' Open: '+open.join(', ')+'.';el.appendChild(o)}
+}
+function renderBench(){benchText($('benchLine'))}
+function inningHead(t,lastLabel){
+  const g=game(),thead=document.createElement('thead'),hr=document.createElement('tr');hr.innerHTML='<th>Player</th>';
+  g.innings.forEach((_,i)=>{const th=document.createElement('th');if(i===team.inning)th.className='on';
+    const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-label','Edit inning '+(i+1));b.onclick=()=>setInning(i);th.appendChild(b);hr.appendChild(th)});
+  const th=document.createElement('th');th.textContent=lastLabel;hr.appendChild(th);thead.appendChild(hr);t.appendChild(thead);
 }
 function renderRot(){
-  const g=game(),t=$('rot');t.innerHTML='';
-  const thead=document.createElement('thead'),hr=document.createElement('tr');
-  hr.innerHTML='<th>Player</th>';
-  g.innings.forEach((_,i)=>{const th=document.createElement('th');if(i===team.inning)th.className='on';
-    const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-label','Edit inning '+(i+1));b.onclick=()=>setInning(i);
-    th.appendChild(b);hr.appendChild(th)});
-  const st=document.createElement('th');st.textContent='Sits';hr.appendChild(st);thead.appendChild(hr);t.appendChild(thead);
-  const tb=document.createElement('tbody');
-  const sits=team.roster.map(r=>sitsFor(r.id)),avg=sits.reduce((a,b)=>a+b,0)/Math.max(1,sits.length);
-  team.roster.forEach((r,ri)=>{
-    const tr=document.createElement('tr');const nm=document.createElement('td');nm.textContent=r.name||'(no name)';nm.title=r.name;tr.appendChild(nm);
-    g.innings.forEach((l,i)=>{const td=document.createElement('td');const pos=FPOS.find(k=>l[k]===r.id);
+  const g=game(),t=$('rot');t.innerHTML='';inningHead(t,'Sits');
+  const ids=orderFor(g),tb=document.createElement('tbody');
+  const sits=ids.map(sitsFor),avg=sits.reduce((a,b)=>a+b,0)/Math.max(1,sits.length);
+  ids.forEach((id,ri)=>{const r=playerById(id);
+    const tr=document.createElement('tr');const nm=document.createElement('td');nm.textContent=(ri+1)+'. '+(r.name||'(no name)');nm.title=r.name;tr.appendChild(nm);
+    g.innings.forEach((l,i)=>{const td=document.createElement('td');const pos=posOf(l,id);
       td.className=(pos?'p':'bn')+(i===team.inning?' on':'');td.textContent=pos||'–';tr.appendChild(td)});
     const s=document.createElement('td');s.className='sits'+(sits[ri]>avg+1?' hi':'');s.textContent=sits[ri];tr.appendChild(s);
     tb.appendChild(tr);
@@ -1141,33 +1291,29 @@ function renderRoster(){
   const l=curLine();
   team.roster.forEach(r=>{
     const row=document.createElement('div');row.className='prow';
-    const where=document.createElement('span');where.className='where';where.textContent=FPOS.find(k=>l[k]===r.id)||'';
+    const where=document.createElement('span');where.className='where';where.textContent=posOf(l,r.id);
     const inp=document.createElement('input');inp.value=r.name;inp.id='pl-'+r.id;inp.setAttribute('aria-label','Player name');inp.autocomplete='off';
-    inp.oninput=()=>{r.name=inp.value;storeTeam();applyNames();lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);renderBench();renderOut();renderRot()};
+    inp.oninput=()=>{r.name=inp.value;storeTeam();applyNames();renderCard();lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);renderBench();renderOut();renderRot();renderLuStrip()};
     const del=document.createElement('button');del.type='button';del.className='del';del.textContent='Remove';del.setAttribute('aria-label','Remove player');
     del.onclick=()=>{team.roster=team.roster.filter(x=>x.id!==r.id);
-      team.games.forEach(g=>g.innings.forEach(li=>{for(const k in li)if(li[k]===r.id)li[k]=''}));
+      team.games.filter(canEdit).forEach(g=>{g.innings.forEach(li=>{for(const k in li)if(li[k]===r.id)li[k]=''});g.order=(g.order||[]).filter(x=>x!==r.id)});
       for(const k in team.runners)if(team.runners[k]===r.id)team.runners[k]='';
       storeTeam();renderTeam();toast('Removed '+(r.name||'player'))};
     row.append(where,inp,del);box.appendChild(row);
   });
 }
 function renderOut(){
-  const g=game(),t=$('outm');t.innerHTML='';
-  const n=g.innings.length,outs=team.roster.map(r=>g.innings.map(l=>!FPOS.some(k=>l[k]===r.id)));
-  const thead=document.createElement('thead'),hr=document.createElement('tr');hr.innerHTML='<th>Player</th>';
-  for(let i=0;i<n;i++){const th=document.createElement('th');if(i===team.inning)th.className='on';
-    const b=document.createElement('button');b.type='button';b.textContent=i+1;b.setAttribute('aria-label','Edit inning '+(i+1));b.onclick=()=>setInning(i);th.appendChild(b);hr.appendChild(th)}
-  const th=document.createElement('th');th.textContent='Out';hr.appendChild(th);thead.appendChild(hr);t.appendChild(thead);
+  const g=game(),t=$('outm');t.innerHTML='';inningHead(t,'Out');
+  const ids=orderFor(g),n=g.innings.length,outs=ids.map(id=>g.innings.map(l=>!posOf(l,id)));
   const tb=document.createElement('tbody');let b2bPlayers=[];
-  team.roster.forEach((r,ri)=>{
+  ids.forEach((id,ri)=>{const r=playerById(id);
     const tr=document.createElement('tr');const o=outs[ri],total=o.filter(Boolean).length;if(!total)tr.className='never';
     const nm=document.createElement('td');nm.textContent=r.name||'(no name)';nm.title=r.name;tr.appendChild(nm);
     let hasB2b=false;
     o.forEach((isOut,i)=>{const td=document.createElement('td');
       if(isOut){const b2b=(i>0&&o[i-1])||(i<n-1&&o[i+1]);if(b2b)hasB2b=true;
         td.className='o'+(b2b?' b2b':'');td.innerHTML='<span>OUT</span>';td.setAttribute('aria-label',(r.name||'Player')+' out inning '+(i+1))}
-      else{td.className='in';td.textContent='\u00b7';td.setAttribute('aria-label',(r.name||'Player')+' playing inning '+(i+1))}
+      else{td.className='in';td.textContent='·';td.setAttribute('aria-label',(r.name||'Player')+' playing inning '+(i+1))}
       if(i===team.inning)td.classList.add('on');tr.appendChild(td)});
     if(hasB2b)b2bPlayers.push(r.name);
     const c=document.createElement('td');c.className='sits';c.textContent=total;tr.appendChild(c);tb.appendChild(tr);
@@ -1176,26 +1322,21 @@ function renderOut(){
   const tf=document.createElement('tfoot'),fr=document.createElement('tr');fr.innerHTML='<td>Total out</td>';
   for(let i=0;i<n;i++){const td=document.createElement('td');td.textContent=outs.filter(o=>o[i]).length;if(i===team.inning)td.classList.add('on');fr.appendChild(td)}
   fr.appendChild(document.createElement('td'));tf.appendChild(fr);t.appendChild(tf);
-  const never=team.roster.filter((r,ri)=>!outs[ri].some(Boolean)).length;
+  const never=outs.filter(o=>!o.some(Boolean)).length;
   let note=b2bPlayers.length?'Out back-to-back: '+b2bPlayers.join(', ')+'.':'Nobody sits two innings in a row.';
-  if(team.roster.length>9)note+=' '+never+' of '+team.roster.length+' players never sit.';
+  if(ids.length>9)note+=' '+never+' of '+ids.length+' players never sit.';
   $('outNote').textContent=note;
 }
 function renderLuStrip(){
   if(!$('luInns'))return;
-  const g=game(),l=curLine();
-  $('luGame').textContent=(g.name||'Game').toUpperCase()+' \u00b7 INNING '+(team.inning+1);
-  const box=$('luInns');box.innerHTML='';
-  g.innings.forEach((_,i)=>{const b=document.createElement('button');b.type='button';b.className='inn';b.textContent=i+1;
-    b.setAttribute('aria-label','Inning '+(i+1));if(i===team.inning)b.setAttribute('aria-current','true');b.onclick=()=>setInning(i);box.appendChild(b)});
-  const bench=team.roster.filter(r=>!FPOS.some(k=>l[k]===r.id)),open=FPOS.filter(k=>!playerById(l[k]));
-  const el=$('luBench');el.textContent='';
-  if(bench.length){el.append('On the bench: ');const b=document.createElement('b');b.textContent=bench.map(r=>r.name).join(', ');el.appendChild(b)}
-  else el.append('Everyone is in the field this inning.');
-  if(open.length){const o=document.createElement('span');o.className='open';o.textContent=' Open: '+open.join(', ');el.appendChild(o)}
+  const g=game();
+  $('luGame').textContent=((TEAMCTX?TEAMCTX.name+' · ':'')+(g.name||'Game')).toUpperCase()+' · INNING '+(team.inning+1);
+  innButtons($('luInns'));benchText($('luBench'));
+  $('luHint').textContent=editable()?'Tap a player on the field to change who plays there.':'View only. This lineup was shared by '+(g.ownerEmail||'another coach')+'.';
 }
 function pickPos(id){
-  if(!FPOS.includes(id))return;
+  if(!FPOS.includes(id)||!editable())return;
+  if(luTab!=='pos')setLuTab('pos');
   document.querySelectorAll('.pc.pick').forEach(x=>x.classList.remove('pick'));
   els[id].classList.add('pick');
   const s=$('lu-'+id);if(!s)return;
@@ -1205,35 +1346,45 @@ function pickPos(id){
   s.addEventListener('blur',()=>els[id].classList.remove('pick'),{once:true});
 }
 function renderTeam(){
-  renderGames();renderInnings();
+  document.querySelector('.panel.team').classList.toggle('ro',!editable());
+  renderGames();renderInnings();renderCard();
   lineupRows($('lineup'),FPOS,curLine(),false);lineupRows($('runnerLineup'),RPOS,team.runners,true);
   renderBench();renderOut();renderRot();renderRoster();applyNames();renderLuStrip();
 }
 function setInning(i){team.inning=i;storeTeam();renderTeam()}
 
+$('luTabOrder').onclick=()=>setLuTab('order');
+$('luTabPos').onclick=()=>setLuTab('pos');
 $('gameSel').onchange=e=>{team.activeGame=e.target.value;team.inning=0;storeTeam();renderTeam()};
-$('gameName').addEventListener('input',e=>{game().name=e.target.value;storeTeam();
-  const o=[...$('gameSel').options].find(x=>x.value===game().id);if(o)o.textContent=e.target.value||'Untitled game'});
+$('gameName').addEventListener('input',e=>{if(!editable())return;game().name=e.target.value;storeTeam();
+  const o=[...$('gameSel').options].find(x=>x.value===game().id);if(o)o.textContent=gameLabel(game())});
+$('gameShare').onclick=()=>{const g=game();if(!g.mine)return;g.shared=!g.shared;storeTeam();renderTeam();
+  toast(g.shared?'Shared with '+TEAMCTX.name+'. Every coach can see it.':'Lineup is private again.')};
+function newGameFrom(src,name){
+  const g=shapeGame({id:newId('g'),name,innings:Array.from({length:src.innings.length},()=>clone(src.innings[0])),order:orderFor(src),mine:true,shared:false});
+  g.edited=g.innings.map(()=>false);return g;
+}
 $('gameNew').onclick=()=>{
-  const first=clone(game().innings[0]);const g={id:newId('g'),name:'Game '+(team.games.length+1),innings:Array.from({length:game().innings.length},()=>clone(first))};
+  const g=newGameFrom(game(),'Game '+(team.games.filter(x=>x.mine).length+1));
   team.games.push(g);team.activeGame=g.id;team.inning=0;storeTeam();renderTeam();
-  $('gameName').focus();$('gameName').select();toast('New game started from inning 1 of the last lineup. Rename it and adjust each inning.');
+  $('gameName').focus();$('gameName').select();toast('New game started from inning 1 of the last lineup. Later innings follow inning 1 until you change them.');
 };
 $('gameDup').onclick=()=>{
-  const g=clone(game());g.id=newId('g');g.name=(game().name||'Game')+' copy';
-  team.games.push(g);team.activeGame=g.id;team.inning=0;storeTeam();renderTeam();
-  $('gameName').focus();$('gameName').select();toast('Duplicated. Rename it for the next game.');
+  const src=game(),g=clone(src);g.id=newId('g');g.name=(src.name||'Game')+' copy';g.mine=true;g.shared=false;
+  delete g.version;delete g.ownerEmail;delete g.updatedByEmail;g.order=orderFor(src);
+  team.games.push(shapeGame(g));team.activeGame=g.id;team.inning=0;storeTeam();renderTeam();
+  $('gameName').focus();$('gameName').select();toast(src.mine?'Duplicated. Rename it for the next game.':'Made your own copy. You can edit this one.');
 };
-$('innMinus').onclick=()=>{const g=game();if(g.innings.length<=1)return;g.innings.pop();storeTeam();renderTeam()};
-$('innPlus').onclick=()=>{const g=game();if(g.innings.length>=9)return;g.innings.push(clone(g.innings[g.innings.length-1]));storeTeam();renderTeam()};
-$('copyPrev').onclick=()=>{if(team.inning<1)return;game().innings[team.inning]=clone(game().innings[team.inning-1]);storeTeam();renderTeam();toast('Copied inning '+team.inning+' into inning '+(team.inning+1))};
-$('copyFwd').onclick=()=>{const g=game();for(let i=team.inning+1;i<g.innings.length;i++)g.innings[i]=clone(g.innings[team.inning]);storeTeam();renderTeam();toast('Innings '+(team.inning+2)+'–'+g.innings.length+' now match inning '+(team.inning+1))};
+$('innMinus').onclick=()=>{const g=game();if(!editable()||g.innings.length<=1)return;g.innings.pop();g.edited.pop();storeTeam();renderTeam()};
+$('innPlus').onclick=()=>{const g=game();if(!editable()||g.innings.length>=9)return;g.innings.push(clone(g.innings[g.innings.length-1]));g.edited.push(false);storeTeam();renderTeam()};
+$('copyPrev').onclick=()=>{const g=game(),i=team.inning;if(!editable()||i<1)return;g.innings[i]=clone(g.innings[i-1]);g.edited[i]=false;carryForward(g,i);storeTeam();renderTeam();toast('Inning '+(i+1)+' follows inning '+i+' again')};
+$('copyFwd').onclick=()=>{const g=game(),i=team.inning;if(!editable())return;for(let j=i+1;j<g.innings.length;j++){g.innings[j]=clone(g.innings[i]);g.edited[j]=false}storeTeam();renderTeam();toast('Innings '+(i+2)+'–'+g.innings.length+' now follow inning '+(i+1))};
 $('innBtn').onclick=()=>{setInning((team.inning+1)%game().innings.length);toast('Inning '+(team.inning+1)+' lineup')};
 
 $('addForm').addEventListener('submit',e=>{
   e.preventDefault();const n=$('addName').value.trim();if(!n)return;
   team.roster.push({id:newId('p'),name:n});storeTeam();renderTeam();
-  $('addName').value='';$('addName').focus();toast('Added '+n+'. Pick a position for them in the lineup.');
+  $('addName').value='';$('addName').focus();toast('Added '+n+'. They’re at the end of the batting order, on the bench.');
 });
 $('lblPos').onclick=()=>setShowNames(false);
 $('lblNames').onclick=()=>setShowNames(true);
@@ -1497,6 +1648,129 @@ function setView(v){
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 if(matchMedia('(min-width:900px)').matches)$('dTagsBox').open=true;
 
+// ---------- team sync: shared roster + game lineups ----------
+let LAST={roster:'',games:{},prefs:''};
+const gamePayload=g=>JSON.stringify({data:{name:g.name,innings:g.innings,edited:g.edited,order:g.order},shared:!!g.shared});
+const prefsOf=()=>({activeGame:team.activeGame,inning:team.inning,runners:team.runners,showNames:team.showNames});
+function applyTeamState(st,prefs){
+  if(!st||!st.team){TEAMCTX=null;return false}
+  const keepGame=team.activeGame,keepInn=team.inning;
+  TEAMCTX={id:st.team.id,name:st.team.name,role:st.team.role,joinCode:st.team.joinCode,members:st.members||[],teams:st.teams||[],rosterVersion:st.roster?st.roster.version:0};
+  team.roster=Array.isArray(st.roster&&st.roster.value)?st.roster.value:[];
+  team.games=(st.games||[]).map(r=>shapeGame({...r.data,id:r.id,shared:r.shared,version:r.version,mine:r.mine,ownerEmail:r.ownerEmail,updatedByEmail:r.updatedByEmail}));
+  LAST={roster:JSON.stringify(team.roster),games:{},prefs:LAST.prefs};
+  team.games.forEach(g=>LAST.games[g.id]=gamePayload(g));
+  if(!team.games.length){team.games=[shapeGame({id:newId('g'),name:'Game 1',innings:Array.from({length:6},blankLine),mine:true,shared:false})];queueSync('team')}
+  if(prefs){if(prefs.runners)team.runners=prefs.runners;if(typeof prefs.showNames==='boolean')team.showNames=prefs.showNames;
+    if(team.games.some(g=>g.id===prefs.activeGame)){team.activeGame=prefs.activeGame;team.inning=+prefs.inning||0}}
+  else if(team.games.some(g=>g.id===keepGame)){team.activeGame=keepGame;team.inning=keepInn}
+  if(!team.games.some(g=>g.id===team.activeGame)){team.activeGame=team.games[0].id;team.inning=0}
+  saveTeamLocal();
+  return true;
+}
+async function syncTeamData(){
+  const tid=TEAMCTX.id;
+  const pj=JSON.stringify(prefsOf());
+  if(pj!==LAST.prefs){await api('/api/data',{method:'PUT',body:{key:'prefs',value:prefsOf()}});LAST.prefs=pj}
+  const rj=JSON.stringify(team.roster);
+  if(rj!==LAST.roster){
+    try{const r=await api('/api/team/roster',{method:'PUT',body:{teamId:tid,value:team.roster,version:TEAMCTX.rosterVersion}});TEAMCTX.rosterVersion=r.version;LAST.roster=rj}
+    catch(e){
+      if(e.status!==409)throw e;
+      // Another coach changed the roster: keep theirs, add any players added here, and save again.
+      const cur=(await api('/api/team')).roster;
+      const theirs=Array.isArray(cur.value)?cur.value:[],ids=new Set(theirs.map(p=>p.id));
+      const mineBase=JSON.parse(LAST.roster||'[]'),baseIds=new Set(mineBase.map(p=>p.id));
+      team.roster=[...theirs,...team.roster.filter(p=>!ids.has(p.id)&&!baseIds.has(p.id))];
+      TEAMCTX.rosterVersion=cur.version;LAST.roster=JSON.stringify(theirs);
+      SYNC.pending.add('team');renderTeam();toast('Another coach updated the roster. Merged their changes.');
+    }
+  }
+  for(const g of team.games){
+    if(!canEdit(g))continue;
+    const p=gamePayload(g);if(p===LAST.games[g.id])continue;
+    const o=JSON.parse(p);
+    try{const r=await api('/api/team/game',{method:'PUT',body:{teamId:tid,id:g.id,data:o.data,shared:o.shared,version:g.version||0}});g.version=r.version;LAST.games[g.id]=p}
+    catch(e){
+      if(e.status===409){
+        const st=await api('/api/team?teamId='+encodeURIComponent(tid));const cur=st.games.find(x=>x.id===g.id);
+        if(cur){Object.assign(g,shapeGame({...cur.data,id:cur.id,shared:cur.shared,version:cur.version,mine:cur.mine,ownerEmail:cur.ownerEmail}));LAST.games[g.id]=gamePayload(g)}
+        renderTeam();toast((cur&&cur.updatedByEmail?cur.updatedByEmail.split('@')[0]:'Another coach')+' just changed “'+g.name+'”. Showing their version.');
+      }else if(e.status===403){LAST.games[g.id]=p;g.mine=false;renderTeam();toast(e.msg||'You can’t change that lineup.')}
+      else throw e;
+    }
+  }
+  const have=new Set(team.games.map(g=>g.id));
+  for(const id of Object.keys(LAST.games))if(!have.has(id)){
+    try{await api('/api/team/game',{method:'DELETE',body:{teamId:tid,id}})}catch(e){if(e.status!==403)throw e}
+    delete LAST.games[id];
+  }
+  saveTeamLocal();
+}
+const editingNow=()=>{const a=document.activeElement;return a&&a.closest&&a.closest('.panel.team')&&/INPUT|SELECT|TEXTAREA/.test(a.tagName)};
+async function refreshTeam(){
+  if(!TEAMCTX||!SYNC.user||SYNC.busy||SYNC.pending.size||editingNow())return;
+  try{const st=await api('/api/team?teamId='+encodeURIComponent(TEAMCTX.id));
+    if(SYNC.busy||SYNC.pending.size||editingNow())return;
+    const before=JSON.stringify([team.roster,team.games.map(gamePayload)]);
+    if(!applyTeamState(st)){await pullAll(false);toast('You’re no longer on that team.');return}
+    if(JSON.stringify([team.roster,team.games.map(gamePayload)])!==before){renderTeam();applyNames()}
+    renderAcctSheet();
+  }catch(e){}
+}
+setInterval(()=>{if(document.visibilityState==='visible')refreshTeam()},30000);
+addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshTeam()});
+
+async function teamAction(body,okMsg){
+  const err=$('teamErr');err.hidden=true;
+  try{
+    if(SYNC.pending.size)await flushSync();
+    const st=await api('/api/team',{method:'POST',body:{teamId:TEAMCTX&&TEAMCTX.id,...body}});
+    if(st.team){applyTeamState(st);refreshAll()}else{TEAMCTX=null;await pullAll(false)}
+    renderAcctSheet();if(okMsg)toast(okMsg);
+  }catch(e){err.textContent=e.msg||'Couldn’t reach the server. Try again.';err.hidden=false}
+}
+function renderTeamBox(){
+  const box=$('teamBox');if(!box)return;box.innerHTML='';
+  const h=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e};
+  box.appendChild(h('span','label','Team'));
+  if(!TEAMCTX){
+    box.appendChild(h('p','help','Coaching with others? Create a team and share the join code, or join your head coach’s team.'));
+    const c=h('form','addrow');c.innerHTML='<input id="teamName" placeholder="Team name" aria-label="Team name" autocomplete="off" maxlength="80"><button class="btn small primary" type="submit">Create team</button>';
+    c.onsubmit=e=>{e.preventDefault();const name=$('teamName').value.trim();if(!name){$('teamErr').textContent='Give your team a name.';$('teamErr').hidden=false;return}
+      teamAction({action:'create',name,roster:team.roster,games:team.games.map(g=>({id:g.id,shared:false,data:JSON.parse(gamePayload(g)).data}))},'Created '+name+'. Share the join code with your coaches.')};
+    const j=h('form','addrow');j.innerHTML='<input id="teamCode" placeholder="Join code" aria-label="Join code" autocomplete="off" autocapitalize="characters" maxlength="12"><button class="btn small" type="submit">Join team</button>';
+    j.onsubmit=e=>{e.preventDefault();const code=$('teamCode').value.trim();if(!code)return;teamAction({action:'join',code},'Joined the team. You’ll see lineups the other coaches share.')};
+    box.append(c,j,h('p','help','Joining uses the team’s roster. Lineups you made on your own stay saved to your account.'));
+  }else{
+    const t=TEAMCTX,owner=t.role==='owner';
+    const top=h('div','tm-top');top.append(h('b','tm-name',t.name),h('span','tm-role',owner?'Head coach':'Coach'));box.appendChild(top);
+    if(owner&&t.joinCode){
+      const jc=h('div','tm-code');jc.append(h('span','subl','Join code'));
+      const code=h('span','tm-codeval',t.joinCode);code.id='teamCodeVal';
+      const cp=h('button','btn small','Copy');cp.type='button';
+      cp.onclick=()=>{try{navigator.clipboard.writeText(t.joinCode).then(()=>toast('Join code copied'),()=>selectCode())}catch(e){selectCode()}};
+      const nc=h('button','del','New code');nc.type='button';nc.onclick=()=>teamAction({action:'newcode'},'New join code made. The old one no longer works.');
+      jc.append(code,cp,nc);box.appendChild(jc);
+      box.appendChild(h('p','help','Coaches create an account on this site, then enter this code under Team.'));
+    }
+    const ul=h('div','tm-members');
+    t.members.forEach(m=>{const row=h('div','tm-mem');row.append(h('span','tm-email',m.email+(m.me?' (you)':'')),h('span','tm-r',m.role==='owner'?'Head coach':'Coach'));
+      if(owner&&m.role!=='owner'){
+        const rm=h('button','del','Remove');rm.type='button';
+        rm.onclick=()=>{if(rm.dataset.confirm){teamAction({action:'remove',email:m.email},'Removed '+m.email)}else{rm.dataset.confirm='1';rm.textContent='Tap to confirm'}};
+        row.appendChild(rm)}
+      ul.appendChild(row)});
+    box.appendChild(ul);
+    const lv=h('button','btn small',owner?(t.members.length>1?'Leave team':'Delete team'):'Leave team');lv.type='button';
+    lv.onclick=()=>{if(lv.dataset.confirm){teamAction({action:'leave'},owner?'Team deleted.':'You left the team.')}
+      else{lv.dataset.confirm='1';lv.textContent=owner?'Tap again to delete the team':'Tap again to leave'}};
+    if(!(owner&&t.members.length>1))box.appendChild(lv);
+  }
+  const err=h('p','ferr');err.id='teamErr';err.hidden=true;box.appendChild(err);
+}
+function selectCode(){const el=$('teamCodeVal');if(!el)return;const r=document.createRange();r.selectNodeContents(el);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Code selected. Copy it from here.')}
+
 // ---------- account + cloud sync (Neon database through /api) ----------
 const SYNC_KEYS={
   plays:{get:()=>mine,set:v=>{if(Array.isArray(v)){mine=v;try{localStorage.setItem(KEY,JSON.stringify(mine))}catch(e){}}}},
@@ -1517,7 +1791,7 @@ function setSyncState(s){
   const btn=$('acctBtn'),lbl=$('acctLbl');if(!btn)return;
   btn.dataset.state=s;
   lbl.textContent=!SYNC.user?'Sign in':s==='saving'?'Saving…':s==='error'?'Not synced':'Synced';
-  btn.title=SYNC.user?SYNC.user.email:'Sign in to save to the cloud';
+  btn.title=SYNC.user?SYNC.user.email+(TEAMCTX?' \u00b7 '+TEAMCTX.name:''):'Sign in to save to the cloud';
   renderAcctSheet();
 }
 function queueSync(key){
@@ -1530,7 +1804,8 @@ async function flushSync(){
   SYNC.busy=true;
   const keys=[...SYNC.pending];SYNC.pending.clear();
   try{
-    for(const k of keys){const v=SYNC_KEYS[k].get();if(v!=null)await api('/api/data',{method:'PUT',body:{key:k,value:v}})}
+    for(const k of keys){if(k==='team'&&TEAMCTX){await syncTeamData();continue}
+      const v=SYNC_KEYS[k].get();if(v!=null)await api('/api/data',{method:'PUT',body:{key:k,value:v}})}
     SYNC.busy=false;setSyncState(SYNC.pending.size?'saving':'synced');
     if(SYNC.pending.size)flushSync();
   }catch(e){
@@ -1550,22 +1825,25 @@ function refreshAll(){
 // Pull the coach's saved data. Anything the cloud doesn't have yet is uploaded from this device.
 async function pullAll(firstTime){
   const r=await api('/api/data');
+  let st=null;try{st=await api('/api/team')}catch(e){}
+  const inTeam=!!(st&&st.team);
   let uploaded=0;
   for(const k of Object.keys(SYNC_KEYS)){
+    if(k==='team'&&inTeam)continue;
     if(r.data[k]!==undefined)SYNC_KEYS[k].set(r.data[k]);
     else{const v=SYNC_KEYS[k].get();if(v!=null&&!(Array.isArray(v)&&!v.length)){SYNC.pending.add(k);uploaded++}}
   }
+  if(inTeam){applyTeamState(st,r.data.prefs);LAST.prefs=JSON.stringify(prefsOf())}else TEAMCTX=null;
   refreshAll();
-  if(uploaded){setSyncState('saving');await flushSync()}else setSyncState('synced');
-  if(firstTime&&uploaded)toast('Saved this device’s plays, team and drills to your account');
+  if(uploaded||SYNC.pending.size){setSyncState('saving');await flushSync()}else setSyncState('synced');
+  if(firstTime&&uploaded&&!inTeam)toast('Saved this device\u2019s plays, team and drills to your account');
 }
-
 function renderAcctSheet(){
   const s=$('acctSheet');if(!s||s.hidden)return;
   const signedIn=!!SYNC.user;
   $('acctIn').hidden=signedIn;$('acctOut').hidden=!signedIn;
   if(signedIn){
-    $('acctEmail').textContent=SYNC.user.email;
+    $('acctTitle').textContent='Your account';$('acctEmail').textContent=SYNC.user.email;renderTeamBox();
     $('acctStatus').textContent=SYNC.state==='saving'?'Saving your changes…':SYNC.state==='error'?'Couldn’t reach the server. Changes are kept on this device and will sync when you’re back online.':'Everything is saved to your account. Sign in on any phone, tablet or computer to see the same plays, lineups and drills.';
   }else{
     const up=SYNC.mode==='up';
@@ -1599,7 +1877,7 @@ $('acctIn').addEventListener('submit',async e=>{
 $('acctSignOut').onclick=async()=>{
   if(SYNC.pending.size)await flushSync();
   try{await api('/api/auth/logout',{method:'POST'})}catch(e){}
-  SYNC.user=null;SYNC.pending.clear();setSyncState('local');closeAcct();
+  SYNC.user=null;SYNC.pending.clear();TEAMCTX=null;renderTeam();setSyncState('local');closeAcct();
   toast('Signed out. This device keeps a copy of your data.');
 };
 // Sync only exists where the API is deployed (your Vercel site), not in previews.

@@ -2,7 +2,7 @@
 import { neon } from '@neondatabase/serverless';
 import crypto from 'node:crypto';
 
-const DATA_KEYS = ['plays', 'team', 'drills', 'practice'];
+const DATA_KEYS = ['plays', 'team', 'drills', 'practice', 'prefs'];
 const MAX_VALUE_BYTES = 2_000_000;
 const SESSION_DAYS = 60;
 const COOKIE = 'fw_session';
@@ -39,6 +39,34 @@ export function ensureSchema() {
         value jsonb not null,
         updated_at timestamptz not null default now(),
         primary key (user_id, key))`;
+      // Teams: built for many, the app uses one per coach for now.
+      await q`create table if not exists teams (
+        id bigserial primary key,
+        name text not null,
+        join_code text not null unique,
+        created_at timestamptz not null default now())`;
+      await q`create table if not exists team_members (
+        team_id bigint not null references teams(id) on delete cascade,
+        user_id bigint not null references users(id) on delete cascade,
+        role text not null default 'coach' check (role in ('owner','coach')),
+        joined_at timestamptz not null default now(),
+        primary key (team_id, user_id))`;
+      await q`create table if not exists team_roster (
+        team_id bigint primary key references teams(id) on delete cascade,
+        value jsonb not null,
+        version integer not null default 1,
+        updated_by bigint references users(id) on delete set null,
+        updated_at timestamptz not null default now())`;
+      await q`create table if not exists team_games (
+        team_id bigint not null references teams(id) on delete cascade,
+        id text not null,
+        owner_id bigint references users(id) on delete set null,
+        shared boolean not null default false,
+        data jsonb not null,
+        version integer not null default 1,
+        updated_by bigint references users(id) on delete set null,
+        updated_at timestamptz not null default now(),
+        primary key (team_id, id))`;
     })().catch(e => { _schema = null; throw e; });
   }
   return _schema;
@@ -121,3 +149,22 @@ export function route(methods, fn) {
 export const normEmail = e => String(e || '').trim().toLowerCase();
 export const validEmail = e => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e.length <= 200;
 export const signupCodeRequired = () => !!process.env.SIGNUP_CODE;
+
+// Team membership for the signed-in coach. Returns { team_id, role, name } or null.
+export async function membership(userId, teamId) {
+  const q = sql();
+  const rows = teamId
+    ? await q`select m.team_id, m.role, t.name, t.join_code from team_members m join teams t on t.id = m.team_id
+              where m.user_id = ${userId} and m.team_id = ${teamId}`
+    : await q`select m.team_id, m.role, t.name, t.join_code from team_members m join teams t on t.id = m.team_id
+              where m.user_id = ${userId} order by m.joined_at limit 1`;
+  return rows[0] || null;
+}
+
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+export function newJoinCode() {
+  const b = crypto.randomBytes(6);
+  return Array.from(b, x => CODE_CHARS[x % CODE_CHARS.length]).join('');
+}
+export const normCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+export const tooBig = v => Buffer.byteLength(JSON.stringify(v)) > MAX_VALUE_BYTES;
