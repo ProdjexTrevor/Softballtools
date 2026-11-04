@@ -402,6 +402,8 @@ body.view-lineups.present .luhint{display:none}
 .bpos{min-height:34px;padding:4px 6px;font-size:14px;font-family:var(--f-mono)}
 .brow:not(.benched) .bpos{background:var(--fielder);color:var(--fielder-ink);border-color:var(--fielder);font-weight:600}
 .bmove{display:flex;gap:4px;justify-content:flex-end}
+.bcard.fixed .brow{grid-template-columns:26px minmax(0,1fr) 130px}
+.ordernote{margin:0}
 .bmove button{width:32px;height:32px;border:1px solid var(--line);background:var(--surface);border-radius:7px;font-size:15px;line-height:1}
 .bmove button:disabled{opacity:.3}
 .inn.own{position:relative}
@@ -616,6 +618,7 @@ body.present .capnote{font-size:17px}
         <button type="button" role="tab" id="luTabOrder" aria-selected="true">Batting order</button>
         <button type="button" role="tab" id="luTabPos" aria-selected="false">By position</button>
       </div>
+      <p class="help ordernote" id="orderNote"></p>
       <div class="bcard" id="battingCard"></div>
       <div class="lineup" id="lineup" hidden></div>
       <p class="bench" id="benchLine"></p>
@@ -1154,7 +1157,7 @@ function setPlayerPos(pid,pos){
   commitLine();storeTeam();renderTeam();if(msg)toast(msg);
 }
 function moveOrder(pid,d){
-  if(!editable())return;
+  if(!editable()||team.inning!==0)return;
   const g=game(),o=orderFor(g),i=o.indexOf(pid),j=i+d;if(i<0||j<0||j>=o.length)return;
   [o[i],o[j]]=[o[j],o[i]];g.order=o;storeTeam();renderTeam();
   const b=document.querySelector('#battingCard [data-pid="'+pid+'"] .'+(d<0?'up':'dn'));if(b&&!b.disabled)b.focus();
@@ -1175,7 +1178,8 @@ function lineupRows(container,group,map,isRunner){
 let luTab='order';
 function renderCard(){
   const box=$('battingCard');box.innerHTML='';
-  const g=game(),l=curLine(),o=orderFor(g),ro=!editable();
+  const g=game(),l=curLine(),o=orderFor(g),ro=!editable(),canOrder=!ro&&team.inning===0;
+  box.classList.toggle('fixed',!canOrder);
   o.forEach((id,i)=>{
     const r=playerById(id),pos=posOf(l,id);
     const row=document.createElement('div');row.className='brow'+(pos?'':' benched');row.dataset.pid=id;
@@ -1187,15 +1191,17 @@ function renderCard(){
       return '<option value="'+k+'">'+k+(who?' ← '+who.name.replace(/[<&"]/g,''):'')+'</option>'}).join('');
     s.value=pos;s.onchange=()=>setPlayerPos(id,s.value);
     const mv=document.createElement('span');mv.className='bmove';
-    if(!ro){
+    if(canOrder){
       const up=document.createElement('button');up.type='button';up.className='up';up.textContent='↑';up.disabled=i===0;up.setAttribute('aria-label','Move '+(r.name||'player')+' up in the batting order');up.onclick=()=>moveOrder(id,-1);
       const dn=document.createElement('button');dn.type='button';dn.className='dn';dn.textContent='↓';dn.disabled=i===o.length-1;dn.setAttribute('aria-label','Move '+(r.name||'player')+' down in the batting order');dn.onclick=()=>moveOrder(id,1);
       mv.append(up,dn);
     }
-    row.append(n,nm,s,mv);box.appendChild(row);
+    row.append(n,nm,s);if(canOrder)row.appendChild(mv);box.appendChild(row);
   });
   $('luTabOrder').setAttribute('aria-selected',luTab==='order');$('luTabPos').setAttribute('aria-selected',luTab==='pos');
   box.hidden=luTab!=='order';$('lineup').hidden=luTab!=='pos';
+  const on=$('orderNote');on.hidden=luTab!=='order';
+  on.textContent=ro?'Batting order for the whole game.':team.inning===0?'Set the batting order here with the arrows. It stays the same all game.':'Batting order is set in inning 1 and stays the same all game. Change positions here.';
 }
 function setLuTab(t){luTab=t;renderCard()}
 function sitsFor(id){return game().innings.filter(l=>!FPOS.some(k=>l[k]===id)).length}
