@@ -292,7 +292,49 @@ select:focus{outline:none;border-color:var(--accent)}
 .views button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 body.view-drills .namewrap,body.view-drills .actions{display:none!important}
 body.view-drills .top{justify-content:flex-start}
-@media (max-width:600px){.views{order:3;flex-basis:100%}.views button{flex:1}}
+@media (max-width:600px){.views{order:3;flex-basis:100%}.views button{flex:1;padding:7px 6px;font-size:13px}}
+body.view-pregame .namewrap,body.view-pregame .actions{display:none!important}
+body.view-pregame .top{justify-content:flex-start}
+
+/* ---------- pregame warm-up: its own black + violet game-day look ---------- */
+.pregame{max-width:520px;margin:0 auto;border-radius:24px;overflow:hidden;color:#F4EFFC;font-family:var(--f-body);line-height:1.45;
+  background-color:#07050B;
+  background-image:radial-gradient(ellipse 120% 40% at 50% -5%,rgba(143,60,255,.35),transparent 60%),repeating-linear-gradient(135deg,rgba(255,255,255,.012) 0 2px,transparent 2px 14px)}
+.pg-wrap{padding:28px 16px 32px}
+.pg-hero{text-align:center;padding:4px 0 20px}
+.pg-emblem{width:88px;height:88px;margin:0 auto 10px;display:block;filter:drop-shadow(0 0 18px rgba(143,60,255,.7))}
+.pg-kicker{font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#B57BFF;font-weight:700}
+.pg-hero h2{font-family:var(--f-display);font-weight:900;font-size:62px;line-height:.9;text-transform:uppercase;letter-spacing:.01em;margin:6px 0 6px;
+  background:linear-gradient(180deg,#fff 0%,#D9C2FF 45%,#8F3CFF 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pg-sub{font-family:var(--f-display);font-weight:800;font-size:22px;letter-spacing:.14em;text-transform:uppercase}
+.pg-stripe{height:4px;width:120px;margin:16px auto 0;border-radius:4px;background:linear-gradient(90deg,transparent,#8F3CFF,transparent)}
+.pg-coaches{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0 6px}
+.pg-coach{background:#120C1C;border:1px solid #2C1D44;border-radius:14px;padding:12px 6px;text-align:center}
+.pg-coach .nm{font-family:var(--f-display);font-weight:800;font-size:21px;letter-spacing:.04em;text-transform:uppercase;color:#B57BFF;line-height:1.1}
+.pg-coach .jobs{font-size:11.5px;color:#A99CC0;line-height:1.35;margin-top:3px}
+.pg-zone{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.16em;text-transform:uppercase;color:#B57BFF;margin:28px 0 12px}
+.pg-zone::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,#2C1D44,transparent)}
+.pg-zone svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2}
+.pg-step{position:relative;background:linear-gradient(180deg,#1A1028,#120C1C);border:1px solid #2C1D44;border-radius:18px;padding:16px 16px 16px 66px;margin-bottom:12px;overflow:hidden}
+.pg-step::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#B57BFF,#5B1FB0)}
+.pg-num{position:absolute;left:16px;top:14px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:20px;background:#8F3CFF;color:#fff;box-shadow:0 0 0 4px rgba(143,60,255,.18),0 0 16px rgba(143,60,255,.55)}
+.pg-step h3{font-family:var(--f-display);font-weight:800;font-size:27px;line-height:1.05;letter-spacing:.02em;text-transform:uppercase;margin:0}
+.pg-step p{color:#A99CC0;font-size:15px;margin:4px 0 0}
+.pg-tag{display:inline-block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:4px 9px;border-radius:999px;background:rgba(143,60,255,.16);color:#B57BFF;border:1px solid rgba(181,123,255,.3)}
+.pg-tag.opt{background:transparent;border-style:dashed;color:#A99CC0}
+.pg-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.pg-cell{background:rgba(0,0,0,.45);border:1px solid #2C1D44;border-radius:12px;padding:10px}
+.pg-cell b{display:block;font-size:14px;font-weight:700}
+.pg-cell span{display:block;font-size:12.5px;color:#B57BFF;font-weight:600;margin-top:2px}
+.pg-cell small{display:block;font-size:11.5px;color:#A99CC0;margin-top:1px}
+.pg-cell .t{font-family:var(--f-display);font-weight:800;font-size:24px;color:#B57BFF;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+.pg-cell .d{font-size:12.5px;color:#A99CC0}
+.pg-game{margin-top:22px;text-align:center;padding:26px 16px;border-radius:22px;
+  background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.18),transparent 60%),linear-gradient(135deg,#5B1FB0,#8F3CFF 55%,#C48CFF);box-shadow:0 10px 40px rgba(143,60,255,.45)}
+.pg-game .big{font-family:var(--f-display);font-weight:900;font-size:56px;line-height:.9;text-transform:uppercase;letter-spacing:.02em;color:#fff}
+.pg-game .small{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:8px;font-weight:700}
+@media (max-width:600px){.pregame{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)) + 8px);border-radius:20px}}
+@media (max-width:360px){.pg-hero h2{font-size:52px}.pg-step{padding-left:58px}.pg-num{left:12px}}
 
 /* ---------- drill library ---------- */
 .drills{display:grid;gap:16px;max-width:1440px;margin:0 auto;grid-template-columns:minmax(0,1fr);align-items:start}
@@ -528,6 +570,7 @@ body.gated{background:var(--bg)}
     <button type="button" data-v="board" aria-pressed="true">Play board</button>
     <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
     <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
+    <button type="button" data-v="pregame" aria-pressed="false">Pregame</button>
   </nav>
   <button type="button" class="themebtn" id="themeBtn" aria-label="Theme: Auto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><span id="themeLbl">Auto</span></button>
   <button type="button" class="acct" id="acctBtn" hidden data-state="local"><i></i><span id="acctLbl">Sign in</span></button>
@@ -768,6 +811,70 @@ body.gated{background:var(--bg)}
     <div class="dactive" id="dActive"></div>
     <div class="dgrid" id="dGrid"></div>
   </section>
+</main>
+<main class="pregame" id="pregame" hidden aria-label="Pregame warm-up">
+  <div class="pg-wrap">
+    <header class="pg-hero">
+      <svg class="pg-emblem" viewBox="0 0 100 100" aria-hidden="true">
+        <defs><linearGradient id="pgFlame" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#5B1FB0"/><stop offset=".6" stop-color="#8F3CFF"/><stop offset="1" stop-color="#E6D4FF"/></linearGradient></defs>
+        <circle cx="50" cy="50" r="47" fill="#0D0814" stroke="#8F3CFF" stroke-width="2.5"/>
+        <path d="M50 18 C56 30 66 34 64 48 C72 42 74 34 73 28 C82 40 82 58 70 70 C64 76 57 80 50 80 C43 80 36 76 30 70 C18 58 18 40 27 28 C26 34 28 42 36 48 C34 34 44 30 50 18 Z" fill="url(#pgFlame)"/>
+        <path d="M50 44 C53 52 60 55 58 64 C57 70 54 74 50 74 C46 74 43 70 42 64 C40 55 47 52 50 44 Z" fill="#0D0814" opacity=".85"/>
+        <path d="M44 62 q6 -4 12 0" stroke="#B57BFF" stroke-width="1.6" fill="none"/>
+      </svg>
+      <div class="pg-kicker">Phoenix Fastpitch</div>
+      <h2>Pregame<br>Warm-Up</h2>
+      <div class="pg-sub">Game Day Game Plan</div>
+      <div class="pg-stripe"></div>
+    </header>
+
+    <section class="pg-coaches" aria-label="Coach assignments">
+      <div class="pg-coach"><div class="nm">Trevor</div><div class="jobs">Heavy balls<br>Ins &amp; outs</div></div>
+      <div class="pg-coach"><div class="nm">K Swizzle</div><div class="jobs">Bunting<br>Pitchers &amp; catchers</div></div>
+      <div class="pg-coach"><div class="nm">RyGuy</div><div class="jobs">Cage swings<br>Ins &amp; outs</div></div>
+    </section>
+
+    <div class="pg-zone"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20V9l7-5 7 5v11"/></svg>Practice area</div>
+
+    <article class="pg-step"><div class="pg-num">1</div>
+      <h3>Stretch &amp; Jog</h3><p>Get loose and warm as a team.</p><span class="pg-tag">Whole team</span></article>
+
+    <article class="pg-step"><div class="pg-num">2</div>
+      <h3>Hitting Rotation</h3><p>Four stations. Rotate through all of them.</p>
+      <div class="pg-grid">
+        <div class="pg-cell"><b>Net &amp; Tee</b><span>The girls</span><small>Player-run</small></div>
+        <div class="pg-cell"><b>Heavy Balls</b><span>Trevor</span><small>Coach-thrown</small></div>
+        <div class="pg-cell"><b>Bunting</b><span>K Swizzle</span><small>Coach-thrown</small></div>
+        <div class="pg-cell"><b>Cage Swings</b><span>RyGuy</span><small>Coach-thrown</small></div>
+      </div></article>
+
+    <article class="pg-step"><div class="pg-num">3</div>
+      <h3>Throwing Warm-Up</h3><p>Get the arms loose before dailies.</p><span class="pg-tag">Whole team</span></article>
+
+    <article class="pg-step"><div class="pg-num">4</div>
+      <h3>Dailies</h3><p>Infield dailies and outfield dailies.</p><span class="pg-tag">Infield</span> <span class="pg-tag">Outfield</span></article>
+
+    <article class="pg-step"><div class="pg-num">+</div>
+      <h3>Grounders</h3><p>If there's time and room in the practice area.</p><span class="pg-tag opt">If time allows</span></article>
+
+    <div class="pg-zone"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/></svg>On the field</div>
+
+    <article class="pg-step"><div class="pg-num">5</div>
+      <h3>Pitchers &amp; Catchers</h3><p>Battery gets warmed up and dialed in.</p><span class="pg-tag">K Swizzle</span></article>
+
+    <article class="pg-step"><div class="pg-num">6</div>
+      <h3>Ins &amp; Outs</h3><p>Split first, then bring it all together.</p>
+      <div class="pg-grid">
+        <div class="pg-cell"><div class="t">5–7 Min</div><div class="d">Two groups: infield &amp; outfield</div></div>
+        <div class="pg-cell"><div class="t">~2 Min</div><div class="d">Full ins &amp; outs together</div></div>
+      </div>
+      <span class="pg-tag">RyGuy</span> <span class="pg-tag">Trevor</span></article>
+
+    <article class="pg-step"><div class="pg-num">7</div>
+      <h3>Football &amp; Huddle</h3><p>Quick football game to get the energy up, then bring it in.</p><span class="pg-tag">Whole team</span></article>
+
+    <div class="pg-game"><div class="big">Game Time!</div><div class="small">Rise up · Phoenix</div></div>
+  </div>
 </main>
 <div class="sheet" id="dSheet" hidden>
   <form class="sheet-card" id="dForm" role="dialog" aria-modal="true" aria-labelledby="dFormTitle" novalidate>
@@ -1737,9 +1844,9 @@ $('dSort').onchange=e=>{dState.sort=e.target.value;renderDrills()};
 // section switch
 function setView(v){
   const prev=view;if(v===prev)return;
-  const d=v==='drills',lu=v==='lineups';
+  const d=v==='drills',lu=v==='lineups',pg=v==='pregame';
   stop();
-  if(d&&presenting)setPresent(false);
+  if((d||pg)&&presenting)setPresent(false);
   if(prev==='board'&&practicing)exitPractice();
   // leaving the lineups board: bring back the play that was open
   if(prev==='lineups'&&luSaved){play=luSaved.play;applyVisibility();renderChips();showFrame(luSaved.cur);setDirty(luSaved.dirty);renderLibrary();luSaved=null}
@@ -1749,10 +1856,11 @@ function setView(v){
   view=v;
   document.body.classList.toggle('view-drills',d);
   document.body.classList.toggle('view-lineups',lu);
-  $('app').hidden=d;$('drills').hidden=!d;
+  document.body.classList.toggle('view-pregame',pg);
+  $('app').hidden=d||pg;$('drills').hidden=!d;$('pregame').hidden=!pg;
   document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
   try{history.replaceState(null,'',v==='board'?location.pathname+location.search:'#'+v)}catch(e){}
-  if(d)renderDrills();else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
+  if(d)renderDrills();else if(pg){}else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
   try{scrollTo(0,0)}catch(e){}
 }
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -2095,7 +2203,7 @@ document.addEventListener('keydown',e=>{
 loadPlay(LIB[1]);
 renderTeam();applyNames();
 sizePieces();
-if(location.hash==='#drills'||location.hash==='#lineups')setView(location.hash.slice(1));
+if(location.hash==='#drills'||location.hash==='#lineups'||location.hash==='#pregame')setView(location.hash.slice(1));
 })();
 </script>
 
