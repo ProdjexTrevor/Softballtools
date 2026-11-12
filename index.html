@@ -3,7 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#26272C">
+<meta name="theme-color" content="#F6F6F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#18181C" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Fieldwise">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="description" content="Softball coaching board: drag players, build animated plays, set inning-by-inning lineups.">
@@ -628,6 +634,41 @@ select,.gname,.dsearch,.fld input,.fld textarea,.prow input,.addrow input,textar
 .lubench .open,.bench .open{color:var(--accent)}
 body.gated{background:var(--bg)}
 .gate-card{border:1px solid var(--line);box-shadow:none}
+
+.install-box{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.install-box .help{margin:0}
+.install-box .btn{align-self:flex-start}
+html.standalone body{overscroll-behavior-y:none}
+/* ---------- menu: sections + Game day switch; bottom tab bar on phones ---------- */
+.views{order:initial;flex-basis:auto;overflow:visible}
+.views button{display:inline-flex;align-items:center;gap:7px;flex:none;white-space:nowrap;padding:7px 14px;font-size:14px}
+.views button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round;stroke-linecap:round;flex:none}
+.subnav{max-width:1440px;margin:-2px auto 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.subnav-t{font-family:var(--f-display);font-weight:900;font-size:26px;text-transform:uppercase;line-height:1}
+.subnav-seg{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px}
+.subnav-seg button{border:0;background:transparent;border-radius:999px;min-height:36px;padding:0 18px;font-weight:700;font-size:14px;color:var(--muted)}
+.subnav-seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+body.present .subnav{display:none!important}
+@media (max-width:760px){
+  .views{position:fixed;left:0;right:0;bottom:0;z-index:15;border-radius:0;border:0;border-top:1px solid var(--line);background:var(--surface);
+    display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;
+    padding:4px max(6px,env(safe-area-inset-right,0px)) calc(4px + env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-left,0px))}
+  .views button{flex-direction:column;justify-content:center;gap:3px;min-height:54px;padding:4px 2px;border-radius:12px;font-size:11px;font-weight:600;letter-spacing:.02em;color:var(--muted);background:transparent}
+  .views button svg{width:23px;height:23px}
+  .views button[aria-pressed="true"]{background:transparent;color:var(--ink);font-weight:800}
+  .views button[aria-pressed="true"] svg{color:var(--accent);stroke-width:2.1}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .themebtn{padding:0 9px}.themebtn span{display:none}
+  .mark{margin-right:auto}.themebtn{margin-left:0}
+  .namewrap{order:5;flex:1 1 100%}
+  #playName{font-size:22px;padding:4px 2px}
+  .subnav{margin:0 0 12px;justify-content:space-between;flex-wrap:nowrap}
+  .subnav-t{font-size:24px}
+  .subnav-seg{flex:0 1 auto}
+  .subnav-seg button{padding:0 16px;min-height:40px}
+  body.present .views{display:none}
+}
 </style>
 </head>
 <body class="gated">
@@ -640,11 +681,10 @@ body.gated{background:var(--bg)}
     <span class="word">Fieldwise</span>
   </div>
   <nav class="views" aria-label="Sections">
-    <button type="button" data-v="board" aria-pressed="true">Play board</button>
-    <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
-    <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
-    <button type="button" data-v="pregame" aria-pressed="false">Pregame</button>
-    <button type="button" data-v="practice" aria-pressed="false">Practice plans</button>
+    <button type="button" data-v="board" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 9-9 9-9-9z"/><circle cx="12" cy="12" r="2.2"/></svg><span>Play board</span></button>
+    <button type="button" data-g="gameday" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4M8.5 14.5h3M8.5 17h6"/></svg><span>Game day</span></button>
+    <button type="button" data-v="practice" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v16H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg><span>Practice</span></button>
+    <button type="button" data-v="drills" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M10 8.5l5 3.5-5 3.5z" fill="currentColor"/></svg><span>Drills</span></button>
   </nav>
   <button type="button" class="themebtn" id="themeBtn" aria-label="Theme: Auto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><span id="themeLbl">Auto</span></button>
   <button type="button" class="acct" id="acctBtn" hidden data-state="local"><i></i><span id="acctLbl">Sign in</span></button>
@@ -658,6 +698,13 @@ body.gated{background:var(--bg)}
   </div>
 </header>
 
+<nav class="subnav" id="gdNav" hidden aria-label="Game day">
+  <span class="subnav-t">Game day</span>
+  <div class="subnav-seg">
+    <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
+    <button type="button" data-v="pregame" aria-pressed="false">Pregame</button>
+  </div>
+</nav>
 <main class="app" id="app" data-mtab="edit">
   <nav class="mtabs" role="tablist" aria-label="Panels">
     <button type="button" role="tab" data-m="edit" aria-selected="true">Step</button>
@@ -1219,6 +1266,11 @@ body.gated{background:var(--bg)}
       <div class="fld">Signed in as <span id="acctEmail" class="acct-email"></span></div>
       <p class="help" id="acctStatus" style="margin:0"></p>
       <div class="team-box" id="teamBox"></div>
+      <div class="install-box" id="installBox" hidden>
+        <span class="label">Add to your home screen</span>
+        <p class="help" id="installText"></p>
+        <button type="button" class="btn small primary" id="installBtn" hidden>Install Fieldwise</button>
+      </div>
       <div class="row">
         <button type="button" class="btn" id="acctSignOut">Sign out</button>
         <button type="button" class="btn primary" id="acctClose2">Done</button>
@@ -2169,12 +2221,18 @@ function setView(v){
   document.body.classList.toggle('view-pregame',pg);
   document.body.classList.toggle('view-practice',pr);
   $('app').hidden=d||pg||pr;$('drills').hidden=!d;$('pregame').hidden=!pg;$('practice').hidden=!pr;
-  document.querySelectorAll('.views button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.v===v);if(b.dataset.v===v)try{b.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}});
+  const gd=v==='lineups'||v==='pregame';
+  document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v||(b.dataset.g==='gameday'&&gd)));
+  $('gdNav').hidden=!gd;document.body.classList.toggle('in-gameday',gd);
+  document.querySelectorAll('#gdNav button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+  if(gd)try{localStorage.setItem('fieldwise.gameday',v)}catch(e){}
   try{history.replaceState(null,'',v==='board'?location.pathname+location.search:'#'+v)}catch(e){}
   if(d)renderDrills();else if(pr){openPractice('index',false)}else if(pg){}else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
   try{scrollTo(0,0)}catch(e){}
 }
-document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
+const lastGameDay=()=>{try{const v=localStorage.getItem('fieldwise.gameday');return v==='pregame'?'pregame':'lineups'}catch(e){return 'lineups'}};
+document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.g==='gameday'?lastGameDay():b.dataset.v));
+document.querySelectorAll('#gdNav button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
 if(matchMedia('(min-width:900px)').matches)$('dTagsBox').open=true;
 
 // ---------- team sync: shared roster + game lineups ----------
@@ -2429,7 +2487,7 @@ function renderAcctSheet(){
   const signedIn=!!SYNC.user;
   $('acctIn').hidden=signedIn;$('acctOut').hidden=!signedIn;
   if(signedIn){
-    $('acctTitle').textContent='Your account';$('acctEmail').textContent=SYNC.user.email;renderTeamBox();
+    $('acctTitle').textContent='Your account';$('acctEmail').textContent=SYNC.user.email;renderTeamBox();renderInstall();
     $('acctStatus').textContent=SYNC.state==='saving'?'Saving your changes…':SYNC.state==='error'?'Couldn’t reach the server. Changes are kept on this device and will sync when you’re back online.':'Everything is saved to your account. Sign in on any phone, tablet or computer to see the same plays, lineups and drills.';
   }else{
     const up=SYNC.mode==='up';
@@ -2483,6 +2541,25 @@ $('acctSignOut').onclick=async()=>{
     else{setGate(true);gateError('You\u2019re offline. Connect to the internet to sign in.')}
   }
 })();
+
+// ---------- installable app ----------
+const STANDALONE=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+document.documentElement.classList.toggle('standalone',STANDALONE);
+let installEvt=null;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;renderInstall()});
+addEventListener('appinstalled',()=>{installEvt=null;renderInstall();toast('Fieldwise is on your home screen')});
+function renderInstall(){
+  const box=$('installBox');if(!box)return;
+  if(STANDALONE||!HOSTED){box.hidden=true;return}
+  box.hidden=false;
+  const ua=navigator.userAgent,ios=/iPhone|iPad|iPod/.test(ua)||(/Macintosh/.test(ua)&&navigator.maxTouchPoints>1);
+  $('installBtn').hidden=!installEvt;
+  $('installText').textContent=installEvt?'Opens full screen like an app, with its own icon, and works at the field without signal.'
+    :ios?'In Safari, tap the Share button, then Add to Home Screen. Fieldwise opens full screen with its own icon and works without signal.'
+    :'In your browser menu, tap Install app or Add to Home screen. Fieldwise opens full screen with its own icon and works without signal.';
+}
+$('installBtn').onclick=async()=>{if(!installEvt)return;installEvt.prompt();try{await installEvt.userChoice}catch(e){}installEvt=null;renderInstall()};
+if(HOSTED&&'serviceWorker' in navigator)addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})});
 
 // ---------- theme: auto / light / dark ----------
 const THKEY='fieldwise.theme',THEMES=['auto','light','dark'];

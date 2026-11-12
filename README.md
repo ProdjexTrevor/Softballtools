@@ -9,11 +9,25 @@ A coaching tool for softball (60 ft bases, 200 ft fence), hosted on Vercel with 
 - **Accounts + sync**: sign in to save everything to the database and use it on any device
 - **Teams**: a head coach creates the team and shares a join code; coaches share the roster and see lineups once they're shared
 
+## Install on a phone
+
+Open the site and sign in, then:
+
+- **iPhone / iPad (Safari):** Share → **Add to Home Screen**
+- **Android (Chrome):** menu → **Install app** (or use the button under your account)
+
+It opens full screen with its own icon. `sw.js` keeps a copy of the app so it opens without signal; it always fetches the latest version when online and never caches `/api/`.
+
+## Menu
+
+Play board · **Game day** (Lineups, Pregame) · Practice · Drills. On phones these are a bottom tab bar.
+
 ## How it's built
 
 | Part | Where |
 |---|---|
 | App (one page, no build step) | `index.html` |
+| Installable phone app | `manifest.webmanifest`, `sw.js`, `icons/`, `vercel.json` (headers) |
 | API (Vercel serverless functions) | `api/` |
 | Database | Neon Postgres, via `@neondatabase/serverless` |
 
