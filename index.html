@@ -342,6 +342,19 @@ body.view-pregame .top{justify-content:flex-start}
 @media (max-width:600px){.pregame{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)) + 8px);border-radius:20px}}
 @media (max-width:360px){.pg-hero h2{font-size:52px}.pg-step{padding-left:58px}.pg-num{left:12px}}
 /* ---------- practice plans: phone-first list + reading views ---------- */
+.pr-today{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;margin:4px 0 12px}
+.pr-today-h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.pr-today-h b{font-family:var(--f-display);font-weight:800;font-size:24px;text-transform:uppercase}
+.pr-today-h span{font-family:var(--f-mono);font-weight:600;color:var(--accent)}
+.pr-today ol{list-style:none;margin:0;padding:0}
+.pr-today li{display:grid;grid-template-columns:48px 1fr auto;gap:0 10px;align-items:baseline;padding:8px 0;border-top:1px solid var(--line)}
+.pr-today li:first-child{border-top:0}
+.pr-today .t{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.pr-today li b{font-size:17px}
+.pr-today li em{font-style:normal;font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.pr-today li small{grid-column:2/-1;color:var(--muted);font-size:14px}
+.pr-today li.st b{color:var(--accent)}
+.pr-today p{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.4}
 .pr-group{margin:22px 4px 10px;font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;text-transform:uppercase}
 .pr-group small{display:block;font-family:var(--f-mono);font-size:11.5px;letter-spacing:.18em;color:var(--accent);font-weight:600;margin-bottom:4px}
 .pr-sched div.hi{background:var(--accent-soft)}
@@ -959,6 +972,17 @@ body.present .subnav{display:none!important}
       <div class="pr-kicker">Thursday, Nov 12 · 16U</div>
       <h2>Hitting Rotations</h2>
     </header>
+    <section class="pr-today" aria-label="Today's practice">
+      <div class="pr-today-h"><b>Today's practice</b><span>90 min</span></div>
+      <ol>
+        <li><span class="t">0:00</span><b>Warm-up</b><em>10 min</em></li>
+        <li class="st"><span class="t">0:10</span><b>Group A stations</b><em>24 min</em><small>Hips and lower half · Stations 1–4</small></li>
+        <li class="st"><span class="t">0:36</span><b>Group B stations</b><em>24 min</em><small>Hands and bat path · Stations 5–8</small></li>
+        <li><span class="t">1:00</span><b>BP</b><em>25 min</em></li>
+        <li><span class="t">1:25</span><b>Wrap-up</b><em>5 min</em></li>
+      </ol>
+      <p>2 hitters per station, 6 min each (3 min per hitter). Half the team starts in Group B; at 0:34 everyone takes a 2-minute water break and swaps.</p>
+    </section>
     <div class="pr-bar">
       <div class="pr-seg" role="tablist" aria-label="Practice plan view">
         <button type="button" role="tab" id="prTabQuick" aria-selected="true" aria-controls="prQuick">One-page card</button>
