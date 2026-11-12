@@ -335,6 +335,79 @@ body.view-pregame .top{justify-content:flex-start}
 .pg-game .small{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.85);margin-top:8px;font-weight:700}
 @media (max-width:600px){.pregame{margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)) + 8px);border-radius:20px}}
 @media (max-width:360px){.pg-hero h2{font-size:52px}.pg-step{padding-left:58px}.pg-num{left:12px}}
+/* ---------- practice plans: phone-first list + reading views ---------- */
+.pr-date{display:flex;flex-direction:column;margin:18px 4px 8px;font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;text-transform:uppercase}
+.pr-date span{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.2em;color:var(--accent);font-weight:600;margin-bottom:4px}
+.pr-plan{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.pr-plan-t{font-family:var(--f-display);font-weight:800;font-size:26px;text-transform:uppercase;line-height:1.05}
+.pr-plan-s{color:var(--muted);font-size:14.5px;margin:2px 0 12px}
+.pr-link{position:relative;display:block;padding:14px 40px 14px 14px;border-radius:14px;background:var(--bg);border:1px solid var(--line);color:var(--ink);text-decoration:none;margin-top:8px;min-height:56px}
+.pr-link b{display:block;font-size:17px}
+.pr-link small{display:block;color:var(--muted);font-size:13.5px;line-height:1.35;margin-top:2px}
+.pr-link i{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-style:normal;font-size:28px;color:var(--accent);line-height:1}
+.pr-link:active{background:var(--accent-soft)}
+.pr-back{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--accent);font-weight:700;font-size:16px;text-decoration:none}
+body.view-practice .namewrap,body.view-practice .actions{display:none!important}
+body.view-practice .top{justify-content:flex-start}
+.practice{max-width:560px;margin:0 auto;font-family:var(--f-body)}
+.pr-hero{text-align:center;padding:8px 0 4px}
+.pr-bar{position:sticky;top:0;z-index:5;background:var(--bg);padding:6px 0 2px}
+.pr-kicker{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.pr-hero h2{font-family:var(--f-display);font-weight:900;font-size:44px;line-height:.95;text-transform:uppercase;margin:4px 0 12px}
+.pr-seg{display:flex;gap:3px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:6px}
+.pr-seg button{flex:1;border:0;background:transparent;border-radius:9px;min-height:44px;font-weight:700;font-size:15px;color:var(--muted)}
+.pr-seg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.pr-meta{text-align:center;color:var(--muted);font-size:14px;margin:4px 0 2px}
+.pr-meta b{color:var(--ink)}
+.pr-key{text-align:center;color:var(--muted);font-size:12px!important;margin:2px 0 12px;font-family:var(--f-mono)}
+.pr-card,.pr-sec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+.pr-card header{display:flex;align-items:center;gap:10px}
+.pr-card h3{flex:1;margin:0;font-family:var(--f-display);font-weight:800;font-size:25px;line-height:1.05;text-transform:uppercase;letter-spacing:.01em}
+.pr-num{flex:none;width:34px;height:34px;border-radius:50%;display:inline-grid;place-items:center;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-weight:800;font-size:20px}
+.pr-reps{flex:none;white-space:nowrap;font-family:var(--f-mono);font-size:13px;font-weight:600;color:var(--muted);background:var(--surface-2);border-radius:999px;padding:3px 10px}
+.pr-dia{display:block;width:100%;height:auto;margin:10px 0 6px;background:var(--bg);border-radius:12px}
+.pr-dia text{font-family:var(--f-body);font-size:13px}
+.pr-dia .dl{fill:var(--ink)}.pr-dia .dq{fill:var(--muted)}
+.pr-dia .d-line{fill:none;stroke:var(--line-strong);stroke-width:1.5}
+.pr-dia .d-body{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.5}
+.pr-dia .d-net{fill:var(--surface-2);stroke:var(--line-strong);stroke-width:1.25}
+.pr-dia .d-acc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:2.5}
+.pr-dia .d-arrow{fill:none;stroke:var(--accent);stroke-width:2.5;marker-end:url(#prArrow)}
+.pr-dia .dash{stroke-dasharray:7 5}.pr-dia .dash2{stroke-dasharray:3 3}
+.pr-dia .d-pvc0{stroke:var(--line-strong);stroke-width:4;stroke-dasharray:7 5}
+.pr-dia .d-pvc1{stroke:var(--accent);stroke-width:4}
+.pr-do{margin:4px 0 10px;padding-left:20px;font-size:16px;line-height:1.4}
+.pr-do li{margin:3px 0}
+.pr-cue{margin:0;background:var(--accent-soft);border-radius:12px;padding:10px 14px;font-weight:700;font-size:17px;line-height:1.3}
+.pr-cue small{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.pr-safety{background:var(--surface-2);border-radius:14px;padding:12px 14px;font-size:15px;margin:0 0 12px}
+.pr-sec p{margin:0 0 10px;font-size:16px;line-height:1.5}
+.pr-h{display:flex;align-items:center;gap:10px;margin:0 0 10px;font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1.05;text-transform:uppercase}
+.pr-station .pr-h span:nth-child(2){flex:1}
+.pr-h .pr-reps{margin-left:auto}
+.pr-goal{color:var(--muted)}
+.pr-sched{display:grid;gap:8px}
+.pr-sched div{display:grid;grid-template-columns:1fr auto;gap:2px 10px;background:var(--bg);border-radius:12px;padding:10px 12px}
+.pr-sched b{font-size:16px}.pr-sched span{font-family:var(--f-mono);font-weight:600;color:var(--accent)}
+.pr-sched small{grid-column:1/-1;color:var(--muted);font-size:14px}
+.pr-note{color:var(--muted);font-size:14.5px!important;margin-top:10px!important}
+.pr-list{margin:0;padding-left:20px;font-size:16px;line-height:1.45}
+.pr-list li{margin:6px 0}
+.pr-jump{display:flex;gap:6px;padding:2px 0 6px}
+.pr-jump[hidden]{display:none}
+.pr-jump a{flex:1;min-height:40px;display:grid;place-items:center;border-radius:12px;background:var(--surface);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-family:var(--f-display);font-weight:800;font-size:22px}
+.pr-jump a:active{background:var(--accent-soft)}
+.pr-station{scroll-margin-top:118px}
+.pr-steps{list-style:none;counter-reset:s;margin:0 0 12px;padding:0}
+.pr-steps li{counter-increment:s;position:relative;padding:10px 12px 10px 48px;background:var(--bg);border-radius:12px;margin-bottom:8px;font-size:15.5px;line-height:1.4;color:var(--muted)}
+.pr-steps li::before{content:counter(s);position:absolute;left:12px;top:10px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--accent);color:var(--accent);font-weight:800;font-size:14px}
+.pr-steps b{display:block;color:var(--ink);font-size:16.5px}
+.pr-tips{margin:12px 0 0;display:grid;gap:10px}
+.pr-tips dt{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.pr-tips dd{margin:2px 0 0;font-size:16px;line-height:1.45}
+@media (max-width:600px){.practice{margin-inline:-4px}.pr-card,.pr-sec{padding:14px;border-radius:16px}.pr-hero h2{font-size:40px}}
+@media (max-width:600px){.views{overflow-x:auto;scrollbar-width:none}.views::-webkit-scrollbar{display:none}.views button{flex:1 0 auto;white-space:nowrap;padding:7px 6px;font-size:12.5px}}
+@media print{body.view-practice .top{display:none}.pr-bar{position:static}}
 
 /* ---------- drill library ---------- */
 .drills{display:grid;gap:16px;max-width:1440px;margin:0 auto;grid-template-columns:minmax(0,1fr);align-items:start}
@@ -571,6 +644,7 @@ body.gated{background:var(--bg)}
     <button type="button" data-v="lineups" aria-pressed="false">Lineups</button>
     <button type="button" data-v="drills" aria-pressed="false">Drill library</button>
     <button type="button" data-v="pregame" aria-pressed="false">Pregame</button>
+    <button type="button" data-v="practice" aria-pressed="false">Practice plans</button>
   </nav>
   <button type="button" class="themebtn" id="themeBtn" aria-label="Theme: Auto"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.5M19 12h2.5M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg><span id="themeLbl">Auto</span></button>
   <button type="button" class="acct" id="acctBtn" hidden data-state="local"><i></i><span id="acctLbl">Sign in</span></button>
@@ -812,6 +886,220 @@ body.gated{background:var(--bg)}
     <div class="dgrid" id="dGrid"></div>
   </section>
 </main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><marker id="prArrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--accent)"/></marker></defs></svg>
+<main class="practice" id="practice" hidden aria-label="Practice plans">
+  <div id="prIndex">
+    <header class="pr-hero">
+      <div class="pr-kicker">16U · Phoenix Fastpitch</div>
+      <h2>Practice Plans</h2>
+    </header>
+    <h3 class="pr-date"><span>Thursday</span>November 12</h3>
+    <article class="pr-plan">
+      <div class="pr-plan-t">Hitting Rotations</div>
+      <div class="pr-plan-s">7 hitting stations · about 65 minutes</div>
+      <a class="pr-link" href="#practice/nov-12/quick" data-plan="quick"><b>One-page card</b><small>Setup diagram, reps and key cue for each station</small><i aria-hidden="true">›</i></a>
+      <a class="pr-link" href="#practice/nov-12/full" data-plan="full"><b>Full practice plan</b><small>Schedule, equipment, step-by-step and coaching tips</small><i aria-hidden="true">›</i></a>
+    </article>
+  </div>
+  <div id="prPlan" hidden>
+    <a class="pr-back" href="#practice" id="prBack">‹ Practice plans</a>
+    <header class="pr-hero">
+      <div class="pr-kicker">Thursday, Nov 12 · 16U</div>
+      <h2>Hitting Rotations</h2>
+    </header>
+    <div class="pr-bar">
+      <div class="pr-seg" role="tablist" aria-label="Practice plan view">
+        <button type="button" role="tab" id="prTabQuick" aria-selected="true" aria-controls="prQuick">One-page card</button>
+        <button type="button" role="tab" id="prTabFull" aria-selected="false" aria-controls="prFull">Full plan</button>
+      </div>
+      <nav class="pr-jump" id="prJump" hidden aria-label="Jump to station"><a href="#pr-st1">1</a><a href="#pr-st2">2</a><a href="#pr-st3">3</a><a href="#pr-st4">4</a><a href="#pr-st5">5</a><a href="#pr-st6">6</a><a href="#pr-st7">7</a></nav>
+    </div>
+<div class="pr-pane" id="prQuick">
+<p class="pr-meta"><b>7 stations</b> · 7 min each · 2–3 hitters · rotate on the whistle</p>
+<p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+<article class="pr-card">
+  <header><span class="pr-num">1</span><h3>PVC hip separation</h3><span class="pr-reps">3 × 8</span></header>
+  <svg class="pr-dia" viewBox="28 150 336 210" role="img" aria-label="Station 1 setup"><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><rect x="161" y="337" width="10" height="10" rx="2" class="d-acc"/><text x="180" y="347" class="dl">PVC upright</text><path d="M180 306 Q204 284 182 264" class="d-arrow"/><text x="196" y="252" class="dl">Hips fire</text><text x="196" y="172" class="dq" text-anchor="middle">Dry reps · no ball</text></svg>
+  <ul class="pr-do"><li>PVC upright behind the back foot, hands on top.</li><li>Stride, fire the hips — hands stay on the pipe.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Hips go, hands stay.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">2</span><h3>Power swings with long PVC</h3><span class="pr-reps">3 × 6</span></header>
+  <svg class="pr-dia" viewBox="28 112 336 248" role="img" aria-label="Station 2 setup"><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><path d="M138 330 Q262 344 248 258 Q238 196 168 186" class="d-arrow dash"/><circle cx="246" cy="262" r="15" class="d-line dash2"/><text x="268" y="266" class="dq">Contact zone</text><text x="168" y="176" class="dl" text-anchor="middle">Extension</text><text x="84" y="352" class="dq" text-anchor="middle">Long PVC path</text><text x="196" y="130" class="dq" text-anchor="middle">Dry swings · no ball</text></svg>
+  <ul class="pr-do"><li>Long, heavy PVC. Dry swings, no ball.</li><li>Hips stay back, hands to full extension.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Stay back, swing long through the zone.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">3</span><h3>Top hand</h3><span class="pr-reps">3 × 10</span></header>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 3 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="272" cy="118" r="8" class="d-acc"/><text x="258" y="148" class="dl" text-anchor="end" font-weight="700">Target: 2B</text><path d="M232 262L272 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Short bat,</tspan><tspan x="36" y="212">top hand only</tspan></text><text x="36" y="328" class="dq"><tspan x="36" y="328">Feet set,</tspan><tspan x="36" y="344">no stride</tspan></text></svg>
+  <ul class="pr-do"><li>Short bat, top hand only. No legs.</li><li>Tee at the front of the plate; line drive at 2B.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Short and direct: line drive to 2B.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">4</span><h3>Bottom hand</h3><span class="pr-reps">3 × 10</span></header>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 4 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="208" cy="118" r="8" class="d-acc"/><text x="194" y="148" class="dl" text-anchor="end" font-weight="700">Target: middle</text><path d="M232 262L208 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Short bat,</tspan><tspan x="36" y="212">bottom hand only</tspan></text></svg>
+  <ul class="pr-do"><li>Short bat, bottom hand only.</li><li>Knob straight to the ball, then extend.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Straight to it, then through it.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">5</span><h3>Split grip half swings</h3><span class="pr-reps">3 × 10</span></header>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 5 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="208" cy="118" r="8" class="d-acc"/><text x="194" y="148" class="dl" text-anchor="end" font-weight="700">Target: line drive</text><path d="M232 262L208 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Hands split</tspan><tspan x="36" y="212">on the handle</tspan></text></svg>
+  <ul class="pr-do"><li>Hands split a few inches on the handle.</li><li>Half swing off the tee — no rollover.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Drive it, don't roll it.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">6</span><h3>Way outside, stay back</h3><span class="pr-reps">3 × 8</span></header>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 6 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="308" cy="118" r="8" class="d-acc"/><text x="294" y="148" class="dl" text-anchor="end" font-weight="700">Target: oppo</text><path d="M266 292L308 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-line dash2"/><text x="222" y="240" class="dq" text-anchor="end">Usual spot</text><circle cx="266" cy="300" r="7" class="d-acc"/><text x="266" y="328" class="dl" text-anchor="middle">Outside + deep</text></svg>
+  <ul class="pr-do"><li>Tee off the outside corner, deep in the zone.</li><li>Let it travel; drive it to the opposite field.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Let it get deep, hit it where it's pitched.</p>
+</article>
+<article class="pr-card">
+  <header><span class="pr-num">7</span><h3>PVC behind the back</h3><span class="pr-reps">3 × 8</span></header>
+  <svg class="pr-dia" viewBox="28 150 336 210" role="img" aria-label="Station 7 setup"><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><line x1="142" y1="232" x2="142" y2="344" class="d-pvc0"/><text x="132" y="236" class="dq" text-anchor="end">PVC at stance</text><line x1="104" y1="304" x2="216" y2="304" class="d-pvc1"/><path d="M146 350 Q212 356 218 316" class="d-arrow"/><circle cx="228" cy="296" r="7" class="d-acc"/><text x="242" y="300" class="dl" text-anchor="start">Hip-high tee</text><text x="226" y="340" class="dl">PVC after turn</text><text x="196" y="176" class="dq" text-anchor="middle">No bat · hips do the work</text></svg>
+  <ul class="pr-do"><li>PVC across the lower back; tee at hip height.</li><li>Turn the hips so the pipe knocks the ball off.</li></ul>
+  <p class="pr-cue"><small>Key cue</small>Turn the hips, hit the ball with the pipe.</p>
+</article>
+<p class="pr-safety"><b>Safety:</b> keep waiting hitters well clear at Stations 1, 2 and 7.</p>
+</div>
+<div class="pr-pane" id="prFull" hidden>
+<section class="pr-sec">
+  <h3 class="pr-h">Overview</h3>
+  <p><b>Focus:</b> hip-to-hand separation, a direct hand path, and driving through the ball instead of rolling over. Every station attacks one piece of the swing — hitters should leave each one able to say what they worked on.</p>
+  <p><b>Format:</b> 7 stations, 2–3 hitters per station. Rotate in order (1 → 2 → … → 7 → 1). One hitter works, one feeds or resets the ball, one watches and gives the cue back.</p>
+  <p><b>Lefties</b> mirror every setup — the Station 3 target becomes the shortstop and Station 6 drives to left field.</p>
+</section>
+<section class="pr-sec">
+  <h3 class="pr-h">Schedule</h3>
+  <div class="pr-sched">
+    <div><b>Dynamic warm-up</b><span>10 min</span><small>Jog, band work, arm circles, dry swings</small></div>
+    <div><b>Station rotation</b><span>7 × 7 min</span><small>6 min working, 1 min to rotate (~50 min)</small></div>
+    <div><b>Team wrap-up</b><span>5 min</span><small>Each hitter names one cue that clicked</small></div>
+  </div>
+  <p class="pr-note">Short on coaches? Run Stations 1, 2 and 7 (no ball) with a player leader and keep a coach at the tee stations (3–6).</p>
+</section>
+<section class="pr-sec">
+  <h3 class="pr-h">Equipment</h3>
+  <ul class="pr-list">
+    <li>2 PVC pipes about bat length (Stations 1 and 7)</li>
+    <li>1 longer, heavier PVC or weighted training bat (Station 2)</li>
+    <li>2 short one-hand bats (Stations 3 and 4)</li>
+    <li>Regular bats for Stations 5 and 6</li>
+    <li>4 tees and 4 hitting nets (Stations 3–6), plus 1 tee for Station 7</li>
+    <li>Buckets of softballs and a plate or flat marker at every tee station</li>
+  </ul>
+</section>
+<section class="pr-sec pr-station" id="pr-st1">
+  <h3 class="pr-h"><span class="pr-num">1</span>PVC hip separation<span class="pr-reps">3 × 8</span></h3>
+  <p class="pr-goal">Feel the hips start forward while the hands stay back — the stretch that stores power.</p>
+  <svg class="pr-dia" viewBox="28 150 336 210" role="img" aria-label="Station 1 setup"><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><rect x="161" y="337" width="10" height="10" rx="2" class="d-acc"/><text x="180" y="347" class="dl">PVC upright</text><path d="M180 306 Q204 284 182 264" class="d-arrow"/><text x="196" y="252" class="dl">Hips fire</text><text x="196" y="172" class="dq" text-anchor="middle">Dry reps · no ball</text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Set the pipe</b>Stand the PVC upright just behind the back foot. Grip the top with both hands at load height.</li><li><b>Stride and fire the hips</b>Step toward the pitcher and turn the belt buckle forward while the hands stay on the pipe.</li><li><b>Feel the stretch, then reset</b>Hold the stretched position for 2 seconds, then reset. Hips lead, hands lag.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Hips go, hands stay.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>Stand a PVC pipe upright just behind the back foot. The hitter grips the top of it with both hands, as if at the top of the load.</dd>
+    <dt>Reps</dt><dd>3 sets of 8. Stride, fire the hips, hold the stretched position for 2 seconds, reset.</dd>
+    <dt>Coach it</dt><dd>Belt buckle turns toward the pitcher; hands do not leave the pipe; back heel comes up as the hips turn.</dd>
+    <dt>Watch for</dt><dd>Shoulders spinning open with the hips, or the hitter pulling the pipe forward — that means the hands are going with the hips.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st2">
+  <h3 class="pr-h"><span class="pr-num">2</span>Power swings with long PVC<span class="pr-reps">3 × 6</span></h3>
+  <p class="pr-goal">Keep the hips back and drive the hands through the ball while swinging something longer and heavier than a bat.</p>
+  <svg class="pr-dia" viewBox="28 112 336 248" role="img" aria-label="Station 2 setup"><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><path d="M138 330 Q262 344 248 258 Q238 196 168 186" class="d-arrow dash"/><circle cx="246" cy="262" r="15" class="d-line dash2"/><text x="268" y="266" class="dq">Contact zone</text><text x="168" y="176" class="dl" text-anchor="middle">Extension</text><text x="84" y="352" class="dq" text-anchor="middle">Long PVC path</text><text x="196" y="130" class="dq" text-anchor="middle">Dry swings · no ball</text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Load and stride</b>Hold the long PVC like a bat; normal load and stride. Keep weight on the back hip.</li><li><b>Hips stay back</b>Start rotation without lunging; head and hips stay behind the front foot.</li><li><b>Hands through</b>Drive the hands through the contact zone to full extension. The length punishes casting.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Stay back, swing long through the zone.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>A longer, heavier PVC pipe (or weighted training bat). Dry swings only — no ball. Space hitters well apart; nobody stands within swinging distance.</dd>
+    <dt>Reps</dt><dd>3 sets of 6 full, controlled swings. Quality over speed — the weight should slow the swing down so flaws show up.</dd>
+    <dt>Coach it</dt><dd>Load and stride like a normal swing; head and hips stay behind the front foot; hands stay close and then drive through to full extension.</dd>
+    <dt>Watch for</dt><dd>Casting (the pipe swings wide early), lunging forward onto the front foot, or muscling the pipe with the arms instead of turning.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st3">
+  <h3 class="pr-h"><span class="pr-num">3</span>Top hand<span class="pr-reps">3 × 10</span></h3>
+  <p class="pr-goal">A short, direct bat path with the top hand, producing line drives toward the second baseman.</p>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 3 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="272" cy="118" r="8" class="d-acc"/><text x="258" y="148" class="dl" text-anchor="end" font-weight="700">Target: 2B</text><path d="M232 262L272 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Short bat,</tspan><tspan x="36" y="212">top hand only</tspan></text><text x="36" y="328" class="dq"><tspan x="36" y="328">Feet set,</tspan><tspan x="36" y="344">no stride</tspan></text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Set up</b>Short bat in the top hand only; choke up and tuck the bottom hand to the chest.</li><li><b>No legs</b>Feet set, no stride, no hip turn. This drill isolates the bat path.</li><li><b>Palm up through contact</b>Knob to the ball, palm up through contact, line drive at the second baseman.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Short and direct: line drive to 2B.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>Tee at the front of the plate, middle height. Short one-hand bat in the top hand; bottom hand tucked to the chest. Feet set — no stride, no hip turn.</dd>
+    <dt>Reps</dt><dd>3 sets of 10 off the tee.</dd>
+    <dt>Coach it</dt><dd>Knob leads to the ball; palm up through contact; finish short. The ball should come off as a line drive at the 2B spot on the net.</dd>
+    <dt>Watch for</dt><dd>The barrel dropping and lofting the ball, the wrist rolling over early (ground ball to the pull side), or sneaking in a stride.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st4">
+  <h3 class="pr-h"><span class="pr-num">4</span>Bottom hand<span class="pr-reps">3 × 10</span></h3>
+  <p class="pr-goal">The bottom hand takes the knob straight to the ball and drives on to extension without peeling off.</p>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 4 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="208" cy="118" r="8" class="d-acc"/><text x="194" y="148" class="dl" text-anchor="end" font-weight="700">Target: middle</text><path d="M232 262L208 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Short bat,</tspan><tspan x="36" y="212">bottom hand only</tspan></text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Set up</b>Short bat in the bottom hand only; top hand on the chest or back hip.</li><li><b>Hand path to the ball</b>Lead with the knob straight to the ball — no looping or sweeping out.</li><li><b>Extend, don't peel</b>Drive through to extension toward the pitcher. Front shoulder stays in; don't peel off.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Straight to it, then through it.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>Tee at the front of the plate, middle height. Short one-hand bat in the bottom (lead) hand; top hand on the chest or back hip.</dd>
+    <dt>Reps</dt><dd>3 sets of 10 off the tee.</dd>
+    <dt>Coach it</dt><dd>Knob goes straight to the ball; drive through to extension toward the pitcher; front shoulder stays closed until after contact.</dd>
+    <dt>Watch for</dt><dd>The lead arm sweeping out wide, the front shoulder flying open early (“peeling off”), or chopping down at the ball.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st5">
+  <h3 class="pr-h"><span class="pr-num">5</span>Split grip half swings<span class="pr-reps">3 × 10</span></h3>
+  <p class="pr-goal">Drive the barrel through the softball instead of rolling the wrists over.</p>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 5 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="208" cy="118" r="8" class="d-acc"/><text x="194" y="148" class="dl" text-anchor="end" font-weight="700">Target: line drive</text><path d="M232 262L208 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-acc"/><text x="246" y="268" class="dl" text-anchor="start">Tee</text><text x="36" y="196" class="dq"><tspan x="36" y="196">Hands split</tspan><tspan x="36" y="212">on the handle</tspan></text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Split the grip</b>Slide the hands a few inches apart on the handle. Choke up slightly for control.</li><li><b>Half swing</b>From load, swing to contact and a short finish. Stop before the wrists roll.</li><li><b>Drive through</b>Top hand palm up, bottom hand palm down. The barrel drives through the ball.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Drive it, don't roll it.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>Tee at the front of the plate, middle height. Regular bat with the hands split a few inches apart on the handle.</dd>
+    <dt>Reps</dt><dd>3 sets of 10 half swings off the tee.</dd>
+    <dt>Coach it</dt><dd>Swing only to contact and a short finish; at contact the top hand is palm up and the bottom hand palm down; the split grip lets the hitter feel the barrel push through the ball.</dd>
+    <dt>Watch for</dt><dd>Top hand flipping over at contact (ground balls to the pull side) or the half swing turning into a full swing.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st6">
+  <h3 class="pr-h"><span class="pr-num">6</span>Way outside, stay back<span class="pr-reps">3 × 8</span></h3>
+  <p class="pr-goal">Let the outside pitch travel deep and drive it to the opposite field instead of reaching and rolling over.</p>
+  <svg class="pr-dia" viewBox="28 86 336 274" role="img" aria-label="Station 6 setup"><rect x="64" y="112" width="288" height="12" rx="3" class="d-net"/><text x="36" y="122" class="dq">Net</text><text x="108" y="102" class="dq" text-anchor="middle">Pull</text><text x="208" y="102" class="dq" text-anchor="middle">Middle</text><text x="308" y="102" class="dq" text-anchor="middle">Oppo</text><circle cx="308" cy="118" r="8" class="d-acc"/><text x="294" y="148" class="dl" text-anchor="end" font-weight="700">Target: oppo</text><path d="M266 292L308 130" class="d-arrow"/><polygon points="214,280 250,280 250,294 232,306 214,294" class="d-line"/><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><circle cx="232" cy="270" r="7" class="d-line dash2"/><text x="222" y="240" class="dq" text-anchor="end">Usual spot</text><circle cx="266" cy="300" r="7" class="d-acc"/><text x="266" y="328" class="dl" text-anchor="middle">Outside + deep</text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Set the tee</b>Tee just off the outside corner and deep, even with the back half of the plate.</li><li><b>Stay back</b>Let the ball travel. Hands stay inside; don't reach or lunge out over the plate.</li><li><b>Drive oppo</b>Barrel trails the hands; drive a line drive into the opposite-field gap.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Let it get deep, hit it where it's pitched.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>Move the tee just off the outside corner and back, even with the back half of the plate (deep in the zone). Net target is the opposite-field side.</dd>
+    <dt>Reps</dt><dd>3 sets of 8 off the tee.</dd>
+    <dt>Coach it</dt><dd>Stay back and let the ball get deep; hands stay inside the ball; barrel trails the hands and the ball is driven on a line to the opposite field.</dd>
+    <dt>Watch for</dt><dd>Lunging or reaching out over the plate, pulling off with the front side, or rolling over to the pull side.</dd>
+  </dl>
+</section>
+<section class="pr-sec pr-station" id="pr-st7">
+  <h3 class="pr-h"><span class="pr-num">7</span>PVC behind the back<span class="pr-reps">3 × 8</span></h3>
+  <p class="pr-goal">Prove the hips can deliver the turn on their own — the PVC, driven only by hip rotation, knocks the softball off the tee.</p>
+  <svg class="pr-dia" viewBox="28 150 336 210" role="img" aria-label="Station 7 setup"><ellipse cx="166" cy="258" rx="6" ry="10" class="d-line"/><ellipse cx="166" cy="318" rx="6" ry="10" class="d-line"/><ellipse cx="156" cy="288" rx="11" ry="24" class="d-body"/><circle cx="156" cy="288" r="8" class="d-line"/><text x="128" y="292" class="dq" text-anchor="end">Hitter</text><line x1="142" y1="232" x2="142" y2="344" class="d-pvc0"/><text x="132" y="236" class="dq" text-anchor="end">PVC at stance</text><line x1="104" y1="304" x2="216" y2="304" class="d-pvc1"/><path d="M146 350 Q212 356 218 316" class="d-arrow"/><circle cx="228" cy="296" r="7" class="d-acc"/><text x="242" y="300" class="dl" text-anchor="start">Hip-high tee</text><text x="226" y="340" class="dl">PVC after turn</text><text x="196" y="176" class="dq" text-anchor="middle">No bat · hips do the work</text></svg>
+  <p class="pr-key">Top view · right-handed hitter · pitcher at the top. Lefties mirror it.</p>
+  <ol class="pr-steps"><li><b>Set up</b>PVC across the lower back at belt height; tee at hip height where the back end of the pipe lands.</li><li><b>Rotate the hips</b>From stance, fire the back hip. The back end of the PVC sweeps into the zone.</li><li><b>Hit the ball with the pipe</b>Square the belt buckle to the pitcher; the PVC knocks the ball off the tee.</li></ol>
+  <p class="pr-cue"><small>Key cue</small>Turn the hips, hit the ball with the pipe.</p>
+  <dl class="pr-tips">
+    <dt>Setup</dt><dd>PVC pipe held across the lower back at belt height. Set a tee at hip height out in front, where the back end of the pipe lands when the hips finish their turn. Adjust the tee once or twice until a good turn reaches it.</dd>
+    <dt>Reps</dt><dd>3 sets of 8. Each rep starts from a normal stance and stride.</dd>
+    <dt>Coach it</dt><dd>Fire the back hip; belt buckle finishes square to the pitcher; head stays still; the back end of the PVC is what hits the ball.</dd>
+    <dt>Watch for</dt><dd>Swinging the pipe with the arms or shoulders, leaning forward to reach the tee, or the back foot staying flat (hips stall).</dd>
+  </dl>
+</section>
+<section class="pr-sec">
+  <h3 class="pr-h">Coach notes</h3>
+  <ul class="pr-list">
+    <li><b>Rotate on the whistle.</b> Every group moves together, so no station runs long.</li>
+    <li><b>One cue per station.</b> Use the key cue; too many cues at once slows hitters down.</li>
+    <li><b>Safety at the PVC stations.</b> Stations 1, 2 and 7 swing or turn with pipe — keep waiting hitters well out of range and spread these stations apart.</li>
+    <li><b>Quality over quantity.</b> If form breaks down near the end of a set, stop and reset rather than finishing the count.</li>
+    <li><b>Connect it to live hitting.</b> At front toss or live BP, call out the station cues (“hips go, hands stay,” “drive it, don't roll it”) so hitters link the drills to their full swing.</li>
+  </ul>
+</section>
+</div>
+  </div>
+</main>
+
 <main class="pregame" id="pregame" hidden aria-label="Pregame warm-up">
   <div class="pg-wrap">
     <header class="pg-hero">
@@ -1842,11 +2130,33 @@ $('dSearch').addEventListener('input',e=>{dState.q=e.target.value;renderDrills()
 $('dSort').onchange=e=>{dState.sort=e.target.value;renderDrills()};
 
 // section switch
+// ---------- practice plans ----------
+function setPracticeMode(full){
+  $('prTabQuick').setAttribute('aria-selected',!full);$('prTabFull').setAttribute('aria-selected',full);
+  $('prQuick').hidden=full;$('prFull').hidden=!full;$('prJump').hidden=!full;
+  try{scrollTo(0,0)}catch(e){}
+}
+// page: 'index' | 'quick' | 'full'
+function openPractice(page,push){
+  const plan=page==='quick'||page==='full';
+  $('prIndex').hidden=plan;$('prPlan').hidden=!plan;
+  if(plan)setPracticeMode(page==='full');
+  const h=plan?'#practice/nov-12/'+page:'#practice';
+  try{if(push)history.pushState(null,'',h);else history.replaceState(null,'',h)}catch(e){}
+  try{scrollTo(0,0)}catch(e){}
+}
+function practiceFromHash(){const m=/^#practice[/]nov-12[/](quick|full)$/.exec(location.hash);return m?m[1]:'index'}
+document.querySelectorAll('.pr-link').forEach(a=>a.onclick=e=>{e.preventDefault();openPractice(a.dataset.plan,true)});
+$('prBack').onclick=e=>{e.preventDefault();openPractice('index',true)};
+$('prTabQuick').onclick=()=>openPractice('quick',false);
+$('prTabFull').onclick=()=>openPractice('full',false);
+addEventListener('popstate',()=>{if(location.hash.indexOf('#practice')===0){if(view!=='practice')setView('practice');openPractice(practiceFromHash(),false)}});
+document.querySelectorAll('.pr-jump a').forEach(a=>a.onclick=e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})});
 function setView(v){
   const prev=view;if(v===prev)return;
-  const d=v==='drills',lu=v==='lineups',pg=v==='pregame';
+  const d=v==='drills',lu=v==='lineups',pg=v==='pregame',pr=v==='practice';
   stop();
-  if((d||pg)&&presenting)setPresent(false);
+  if((d||pg||pr)&&presenting)setPresent(false);
   if(prev==='board'&&practicing)exitPractice();
   // leaving the lineups board: bring back the play that was open
   if(prev==='lineups'&&luSaved){play=luSaved.play;applyVisibility();renderChips();showFrame(luSaved.cur);setDirty(luSaved.dirty);renderLibrary();luSaved=null}
@@ -1857,10 +2167,11 @@ function setView(v){
   document.body.classList.toggle('view-drills',d);
   document.body.classList.toggle('view-lineups',lu);
   document.body.classList.toggle('view-pregame',pg);
-  $('app').hidden=d||pg;$('drills').hidden=!d;$('pregame').hidden=!pg;
-  document.querySelectorAll('.views button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
+  document.body.classList.toggle('view-practice',pr);
+  $('app').hidden=d||pg||pr;$('drills').hidden=!d;$('pregame').hidden=!pg;$('practice').hidden=!pr;
+  document.querySelectorAll('.views button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.v===v);if(b.dataset.v===v)try{b.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}});
   try{history.replaceState(null,'',v==='board'?location.pathname+location.search:'#'+v)}catch(e){}
-  if(d)renderDrills();else if(pg){}else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
+  if(d)renderDrills();else if(pr){openPractice('index',false)}else if(pg){}else{applyNames();renderLuStrip();requestAnimationFrame(sizePieces)}
   try{scrollTo(0,0)}catch(e){}
 }
 document.querySelectorAll('.views button').forEach(b=>b.onclick=()=>setView(b.dataset.v));
@@ -2204,6 +2515,7 @@ loadPlay(LIB[1]);
 renderTeam();applyNames();
 sizePieces();
 if(location.hash==='#drills'||location.hash==='#lineups'||location.hash==='#pregame')setView(location.hash.slice(1));
+else if(location.hash.indexOf('#practice')===0){const pp=practiceFromHash();setView('practice');openPractice(pp,false)}
 })();
 </script>
 

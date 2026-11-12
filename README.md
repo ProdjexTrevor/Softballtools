@@ -5,6 +5,7 @@ A coaching tool for softball (60 ft bases, 200 ft fence), hosted on Vercel with 
 - **Play board**: drag fielders, runners and the ball; record steps and play them back; practice mode
 - **Lineups**: field view with player names, lineups per inning, who's-out matrix, rotation chart
 - **Drill library**: drills with a media link, description and tags
+- **Practice plans**: dated practice plans, phone-sized — each with a one-page card and a full plan (setup diagrams and coaching tips)
 - **Accounts + sync**: sign in to save everything to the database and use it on any device
 - **Teams**: a head coach creates the team and shares a join code; coaches share the roster and see lineups once they're shared
 
